@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>FairReact - Universal Dual Sync Player</title>
+  <link rel="stylesheet" href="css/player.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+  <!-- Drag Blocker Overlay -->
+  <div class="fr-drag-overlay" id="drag-overlay"></div>
+
+  <!-- Workspace Viewport (Full 100vw x 100vh Cinema Stage) -->
+  <main class="fr-viewport" id="fr-viewport">
+    <!-- Top Left FairReact Logo Watermark -->
+    <a href="index.html" class="fr-cinema-brand" id="cinema-brand" title="FairReact Universal Player">
+      <div class="fr-web-logo">FR</div>
+      <span class="fr-cinema-brand-title">FairReact</span>
+    </a>
+
+    <!-- Main Reaction Player Container -->
+    <div class="fr-main-player-box" id="main-player-box">
+      <div id="main-player"></div>
+      <!-- Click / Tap Interaction Shield (Instant Seek with Zero Distracting Animations) -->
+      <div class="fr-video-tap-shield" id="video-tap-shield"></div>
+    </div>
+
+    <!-- Custom Cinema Controls Bar (Works 100% on Desktop & Mobile with Auto-Hide) -->
+    <div class="fr-cinema-controls" id="cinema-controls">
+      <!-- Scrubber / Progress Bar -->
+      <div class="fr-scrubber-track" id="main-scrubber" title="Seek video">
+        <div class="fr-scrubber-buffered" id="main-buffered"></div>
+        <div class="fr-scrubber-fill" id="main-progress-fill"></div>
+        <div class="fr-scrubber-thumb" id="main-progress-thumb"></div>
+      </div>
+
+      <!-- Controls Row -->
+      <div class="fr-ctrl-row">
+        <div class="fr-ctrl-left">
+          <!-- Play / Pause -->
+          <button class="fr-ctrl-btn" id="btn-cinema-play" title="Play/Pause (Space)">▶</button>
+
+          <!-- Volume & Mute -->
+          <div class="fr-cinema-vol">
+            <button class="fr-ctrl-btn" id="btn-cinema-mute" title="Mute/Unmute">🔊</button>
+            <input type="range" id="cinema-vol-slider" min="0" max="100" value="100" title="Reactor Volume">
+          </div>
+
+          <!-- Time Display -->
+          <span class="fr-time-display" id="cinema-time-txt">00:00 / 00:00</span>
+        </div>
+
+        <div class="fr-ctrl-right">
+          <!-- CC Subtitles Toggle -->
+          <button class="fr-ctrl-btn" id="btn-cinema-cc" title="Subtitles / Captions">CC</button>
+
+          <!-- Playback Speed Menu -->
+          <div class="fr-menu-container">
+            <button class="fr-ctrl-btn" id="btn-cinema-speed" title="Playback Speed">1x</button>
+            <div class="fr-popup-menu" id="menu-speed">
+              <button class="fr-menu-item" data-speed="0.5">0.5x</button>
+              <button class="fr-menu-item" data-speed="0.75">0.75x</button>
+              <button class="fr-menu-item active" data-speed="1">Normal (1x)</button>
+              <button class="fr-menu-item" data-speed="1.25">1.25x</button>
+              <button class="fr-menu-item" data-speed="1.5">1.5x</button>
+              <button class="fr-menu-item" data-speed="2">2.0x</button>
+            </div>
+          </div>
+
+          <!-- Quality Menu -->
+          <div class="fr-menu-container">
+            <button class="fr-ctrl-btn" id="btn-cinema-quality" title="Video Quality">⚙️</button>
+            <div class="fr-popup-menu" id="menu-quality">
+              <button class="fr-menu-item active" data-quality="auto">Auto (HD)</button>
+              <button class="fr-menu-item" data-quality="hd1080">1080p HD</button>
+              <button class="fr-menu-item" data-quality="hd720">720p HD</button>
+              <button class="fr-menu-item" data-quality="large">480p</button>
+              <button class="fr-menu-item" data-quality="medium">360p</button>
+            </div>
+          </div>
+
+          <!-- Fullscreen -->
+          <button class="fr-ctrl-btn" id="btn-cinema-fullscreen" title="Fullscreen (F)">⛶</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating PiP Window (Exact Extension UI - Controlled only via Reaction Video & Footer) -->
+    <div class="fr-player-window fr-pip-window hidden" id="pip-window">
+      <!-- Auto-hiding Header -->
+      <div class="fr-header fr-pip-header" id="pip-header" title="Drag to move PiP">
+        <div class="fr-title-area">
+          <span class="fr-logo-badge">FAIRREACT</span>
+          <div class="fr-status-pill fr-status-sync" id="pip-status-pill">
+            <span class="fr-status-dot"></span>
+            <span id="pip-status-text">Synchronizing...</span>
+          </div>
+        </div>
+
+        <div class="fr-header-actions">
+          <button class="fr-btn-icon" id="btn-pip-size" title="Cycle Size (1x, 1.5x, 2x)">⤢</button>
+          <button class="fr-btn-icon" id="btn-pip-dock" title="Dock to Next Corner">🗖</button>
+          <button class="fr-btn-icon" id="btn-pip-reload" title="Re-sync Frame">🔄</button>
+          <button class="fr-btn-icon" id="btn-pip-toggle" title="Hide PiP">✕</button>
+        </div>
+      </div>
+
+      <!-- PiP Video Player Stage with Drag Shield -->
+      <div class="fr-pip-stage">
+        <div id="pip-player"></div>
+        <div class="fr-pip-click-shield" id="pip-click-shield" title="Drag to move PiP anywhere"></div>
+      </div>
+
+      <!-- Auto-hiding Footer Bar -->
+      <div class="fr-footer-bar fr-pip-footer" id="pip-footer">
+        <div class="fr-footer-left">
+          <button class="fr-btn-nudge" id="btn-reset-offset" title="Reset Drift Offset">0s</button>
+        </div>
+
+        <div class="fr-footer-center">
+          <button class="fr-btn-nudge" id="btn-m5" title="Rewind 5s">-5s</button>
+          <button class="fr-btn-nudge" id="btn-m1" title="Rewind 1s">-1s</button>
+          <span class="fr-offset-display" id="pip-offset-txt" title="Current Drift Offset">0.0s</span>
+          <button class="fr-btn-nudge" id="btn-p1" title="Forward 1s">+1s</button>
+          <button class="fr-btn-nudge" id="btn-p5" title="Forward 5s">+5s</button>
+        </div>
+
+        <div class="fr-footer-right">
+          <div class="fr-vol-container">
+            <button class="fr-btn-icon" id="btn-pip-mute" title="Toggle Mute" style="font-size:12px;padding:2px;">🔊</button>
+            <input type="range" class="fr-vol-slider" id="pip-vol-slider" min="0" max="100" value="80" title="PiP Volume">
+          </div>
+        </div>
+      </div>
+
+      <!-- Corner Resize Grip -->
+      <div class="fr-resize-handle" id="pip-resize-handle" title="Drag corner to resize"></div>
+    </div>
+  </main>
+
+  <script src="js/sync_engine.js"></script>
+  <script src="js/player_app.js"></script>
+</body>
+</html>

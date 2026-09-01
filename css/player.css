@@ -1,0 +1,738 @@
+/* FairReact Universal Web Player - Edge-to-Edge Cinema Stage */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  min-height: -webkit-fill-available;
+  background: #000000;
+  color: #f8fafc;
+  overflow: hidden;
+  position: relative;
+  touch-action: manipulation;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Full Viewport Cinema Viewport */
+.fr-viewport {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  position: relative;
+  background: #000;
+  overflow: hidden;
+}
+
+/* Top-Left Watermark Logo Brand */
+.fr-cinema-brand {
+  position: absolute;
+  top: max(16px, env(safe-area-inset-top, 16px));
+  left: max(16px, env(safe-area-inset-left, 16px));
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fr-cinema-brand:hover {
+  background: rgba(15, 23, 42, 0.95);
+  border-color: rgba(99, 102, 241, 0.5);
+}
+
+.fr-web-logo {
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, #6366f1, #ec4899);
+  color: white;
+  font-weight: 800;
+  font-size: 11px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.4);
+}
+
+.fr-cinema-brand-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f8fafc;
+  letter-spacing: -0.2px;
+}
+
+/* Auto-Hide Top Logo on Inactivity */
+.fr-viewport.fr-controls-inactive .fr-cinema-brand {
+  opacity: 0 !important;
+  transform: translateY(-10px) !important;
+  pointer-events: none !important;
+}
+
+/* Main Video Stage */
+.fr-main-player-box {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  z-index: 10;
+}
+
+.fr-main-player-box iframe,
+.fr-main-player-box div {
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+  display: block;
+}
+
+/* Video Tap Shield - Instant Clean Click / Double-Tap Handler */
+.fr-video-tap-shield {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 20;
+  cursor: pointer;
+  background: transparent;
+  touch-action: manipulation;
+}
+
+/* ========================================================
+   CUSTOM CINEMA CONTROL BAR (Optimized for Mobile & Desktop)
+   ======================================================== */
+.fr-cinema-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.96) 0%, rgba(0, 0, 0, 0.75) 50%, rgba(0, 0, 0, 0.3) 85%, transparent 100%);
+  padding: 24px 20px max(18px, env(safe-area-inset-bottom, 18px)) 20px;
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  touch-action: none;
+}
+
+/* Fullscreen safe area expansion */
+:fullscreen .fr-cinema-controls,
+:-webkit-full-screen .fr-cinema-controls {
+  padding-bottom: max(26px, env(safe-area-inset-bottom, 26px));
+}
+
+/* Inactivity Auto-Hide for Cinema Controls */
+.fr-viewport.fr-controls-inactive .fr-cinema-controls {
+  opacity: 0 !important;
+  transform: translateY(100%) !important;
+  pointer-events: none !important;
+}
+
+/* ========================================================
+   CRISP VISIBLE RED SCRUBBER / PROGRESS BAR
+   ======================================================== */
+.fr-scrubber-track {
+  width: 100%;
+  height: 24px;
+  position: relative;
+  cursor: pointer;
+  touch-action: none;
+  display: flex;
+  align-items: center;
+}
+
+/* Background Gray Rail */
+.fr-scrubber-track::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 3px;
+  pointer-events: none;
+  transition: height 0.15s ease;
+}
+
+.fr-scrubber-track:hover::before,
+.fr-scrubber-track:active::before {
+  height: 7px;
+}
+
+/* Buffered Portion */
+.fr-scrubber-buffered {
+  position: absolute;
+  top: calc(50% - 2.5px);
+  left: 0;
+  height: 5px;
+  width: 0%;
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 3px;
+  pointer-events: none;
+  transition: height 0.15s ease, top 0.15s ease;
+}
+
+.fr-scrubber-track:hover .fr-scrubber-buffered,
+.fr-scrubber-track:active .fr-scrubber-buffered {
+  top: calc(50% - 3.5px);
+  height: 7px;
+}
+
+/* Played Red Progress Fill */
+.fr-scrubber-fill {
+  position: absolute;
+  top: calc(50% - 2.5px);
+  left: 0;
+  height: 5px;
+  width: 0%;
+  background: #ff0000;
+  border-radius: 3px;
+  pointer-events: none;
+  transition: height 0.15s ease, top 0.15s ease;
+}
+
+.fr-scrubber-track:hover .fr-scrubber-fill,
+.fr-scrubber-track:active .fr-scrubber-fill {
+  top: calc(50% - 3.5px);
+  height: 7px;
+}
+
+/* Scrubber Thumb Knob */
+.fr-scrubber-thumb {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  width: 14px;
+  height: 14px;
+  background: #ff0000;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.15s ease;
+  pointer-events: none;
+  box-shadow: 0 0 8px rgba(255, 0, 0, 0.9);
+}
+
+.fr-scrubber-track:hover .fr-scrubber-thumb,
+.fr-scrubber-track:active .fr-scrubber-thumb {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Controls Button Row */
+.fr-ctrl-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.fr-ctrl-left, .fr-ctrl-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fr-ctrl-btn {
+  background: transparent;
+  border: none;
+  color: #f8fafc;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  min-width: 36px;
+  min-height: 36px;
+  touch-action: manipulation;
+}
+
+.fr-ctrl-btn:hover, .fr-ctrl-btn:active {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+.fr-time-display {
+  font-size: 13px;
+  font-weight: 600;
+  color: #cbd5e1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Volume Slider */
+.fr-cinema-vol {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fr-cinema-vol input[type=range] {
+  width: 70px;
+  accent-color: #ff0000;
+  cursor: pointer;
+}
+
+/* Quality & Speed Popup Menus */
+.fr-menu-container {
+  position: relative;
+}
+
+.fr-popup-menu {
+  position: absolute;
+  bottom: 48px;
+  right: 0;
+  background: rgba(15, 23, 42, 0.96);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 6px;
+  display: none;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 140px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85);
+  z-index: 100;
+}
+
+.fr-popup-menu.show {
+  display: flex;
+}
+
+.fr-menu-item {
+  background: transparent;
+  border: none;
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: 6px;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.15s ease;
+}
+
+.fr-menu-item:hover, .fr-menu-item:active {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
+.fr-menu-item.active {
+  background: rgba(99, 102, 241, 0.25);
+  color: #818cf8;
+}
+
+/* Floating PiP Window (Exact Extension Look & Responsive Touch Behavior) */
+.fr-pip-window {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 440px;
+  height: 290px;
+  min-width: 200px;
+  min-height: 140px;
+  max-width: 96vw;
+  max-height: 92vh;
+  background: #000000;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 50;
+  touch-action: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, opacity 0.25s ease, transform 0.25s ease;
+}
+
+.fr-pip-window:hover {
+  border-color: rgba(99, 102, 241, 0.55);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.9), 0 0 15px rgba(99, 102, 241, 0.3);
+}
+
+/* Hard Hidden State for PiP Window */
+.fr-pip-window.hidden,
+#pip-window.hidden {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transform: scale(0.92) !important;
+}
+
+/* Inactivity Auto-Hide for PiP controls */
+.fr-pip-window.fr-autohide-inactive .fr-pip-header {
+  opacity: 0 !important;
+  transform: translateY(-100%) !important;
+  pointer-events: none !important;
+}
+
+.fr-pip-window.fr-autohide-inactive .fr-pip-footer {
+  opacity: 0 !important;
+  transform: translateY(100%) !important;
+  pointer-events: none !important;
+}
+
+.fr-pip-window.fr-autohide-inactive .fr-resize-handle {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* PiP Header Bar */
+.fr-pip-header {
+  height: 36px;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  cursor: grab;
+  touch-action: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fr-pip-header:active {
+  cursor: grabbing;
+}
+
+.fr-title-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.fr-logo-badge {
+  background: linear-gradient(135deg, #6366f1, #ec4899);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.fr-status-pill {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.fr-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.fr-status-sync {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+.fr-status-sync .fr-status-dot {
+  background: #10b981;
+  box-shadow: 0 0 6px #10b981;
+}
+
+.fr-status-waiting {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+.fr-status-waiting .fr-status-dot {
+  background: #f59e0b;
+}
+
+.fr-status-pause {
+  background: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+}
+.fr-status-pause .fr-status-dot {
+  background: #6366f1;
+}
+
+.fr-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.fr-btn-icon {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 5px;
+  min-width: 28px;
+  min-height: 28px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+.fr-btn-icon:hover, .fr-btn-icon:active {
+  background: rgba(255, 255, 255, 0.15);
+  color: #f8fafc;
+}
+
+/* PiP Middle Video Stage */
+.fr-pip-stage {
+  flex: 1;
+  position: relative;
+  background: #000;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  touch-action: none;
+}
+
+.fr-pip-stage iframe,
+.fr-pip-stage div {
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+}
+
+/* Touch & Drag Shield on PiP Stage */
+.fr-pip-click-shield {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 20;
+  cursor: grab;
+  background: transparent;
+  touch-action: none;
+}
+
+.fr-pip-click-shield:active {
+  cursor: grabbing;
+}
+
+/* PiP Footer Bar */
+.fr-pip-footer {
+  height: 38px;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  touch-action: manipulation;
+}
+
+.fr-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.fr-footer-center {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.fr-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.fr-btn-nudge {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+.fr-btn-nudge:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.fr-offset-display {
+  font-size: 11px;
+  font-family: monospace;
+  font-weight: 700;
+  color: #818cf8;
+  min-width: 38px;
+  text-align: center;
+}
+
+/* Volume Popover */
+.fr-vol-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.fr-vol-slider {
+  width: 60px;
+  accent-color: #6366f1;
+  cursor: pointer;
+}
+
+/* Resize Grip */
+.fr-resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 24px;
+  height: 24px;
+  cursor: se-resize;
+  z-index: 60;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 4px;
+  touch-action: none;
+  transition: opacity 0.2s ease;
+}
+
+.fr-resize-handle::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-right: 2px solid #818cf8;
+  border-bottom: 2px solid #818cf8;
+  border-radius: 1px;
+}
+
+/* Pointer Blocker Overlay during Drag */
+.fr-drag-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 999999;
+  display: none;
+  cursor: grabbing;
+  touch-action: none;
+}
+
+.fr-drag-overlay.active {
+  display: block;
+}
+
+/* ========================================================
+   RESPONSIVE MOBILE & ANDROID SCREEN OPTIMIZATIONS
+   ======================================================== */
+@media (max-width: 768px) {
+  .fr-cinema-controls {
+    padding: 20px 14px max(24px, env(safe-area-inset-bottom, 24px)) 14px;
+    gap: 12px;
+  }
+  
+  .fr-scrubber-track {
+    height: 28px;
+  }
+  
+  .fr-scrubber-track::before,
+  .fr-scrubber-buffered,
+  .fr-scrubber-fill {
+    height: 6px;
+    top: calc(50% - 3px);
+  }
+  
+  .fr-scrubber-thumb {
+    width: 16px;
+    height: 16px;
+    transform: translate(-50%, -50%) scale(1); /* Permanently visible thumb on mobile */
+  }
+  
+  .fr-ctrl-btn {
+    min-width: 40px;
+    min-height: 40px;
+    font-size: 18px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+  }
+  
+  .fr-ctrl-btn:active {
+    background: rgba(255, 255, 255, 0.25);
+  }
+  
+  .fr-ctrl-left, .fr-ctrl-right {
+    gap: 8px;
+  }
+  
+  .fr-time-display {
+    font-size: 12px;
+    font-weight: 700;
+  }
+  
+  .fr-cinema-vol {
+    display: none;
+  }
+  
+  .fr-pip-window {
+    width: 240px;
+    height: 165px;
+    min-width: 180px;
+    min-height: 125px;
+    top: 10px;
+    right: 10px;
+    border-radius: 10px;
+  }
+}

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FairReact - Universal Dual Sync Reaction Player</title>
+  <link rel="stylesheet" href="css/player.css">
+  <link rel="manifest" href="manifest.json">
+  <style>
+    .fr-landing-container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .fr-hero {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .fr-hero h1 {
+      font-size: 28px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #818cf8, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    .fr-hero p {
+      font-size: 14px;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+    .fr-card-landing {
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+    .fr-form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .fr-form-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #cbd5e1;
+    }
+    .fr-input-landing {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: #f8fafc;
+      font-size: 13px;
+      outline: none;
+    }
+    .fr-input-landing:focus {
+      border-color: #6366f1;
+    }
+    .fr-btn-launch {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: white;
+      border: none;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+      transition: all 0.15s ease;
+    }
+    .fr-btn-launch:hover {
+      background: #4f46e5;
+    }
+    .fr-features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .fr-feat-item {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      color: #94a3b8;
+    }
+    .fr-feat-item strong {
+      color: #f1f5f9;
+      display: block;
+      margin-bottom: 3px;
+    }
+  </style>
+</head>
+<body>
+  <header class="fr-web-header">
+    <a href="index.html" class="fr-web-brand">
+      <div class="fr-web-logo">FR</div>
+      <span class="fr-web-title">FairReact</span>
+    </a>
+    <div style="font-size: 12px; color: #10b981; font-weight: 700;">● Zero-Install Universal Player</div>
+  </header>
+
+  <div class="fr-landing-container">
+    <div class="fr-hero">
+      <h1>Dual-Sync Reaction Player</h1>
+      <p>Watch YouTube reaction videos with an automatic, frame-synced floating PiP of the original video directly on iPhone, Android, or PC without installing anything.</p>
+    </div>
+
+    <div class="fr-card-landing">
+      <div class="fr-form-group">
+        <label class="fr-form-label">Reaction Video URL / ID</label>
+        <input type="text" class="fr-input-landing" id="in-reaction" placeholder="e.g. uPlq0RPIr9A" value="uPlq0RPIr9A">
+      </div>
+
+      <div class="fr-form-group">
+        <label class="fr-form-label">Original Video URL / ID</label>
+        <input type="text" class="fr-input-landing" id="in-original" placeholder="e.g. JqFzhcWo3EU" value="JqFzhcWo3EU">
+      </div>
+
+      <div class="fr-form-group">
+        <label class="fr-form-label">FairReact Token or Intro Offset (MM:SS)</label>
+        <input type="text" class="fr-input-landing" id="in-token" placeholder="e.g. v1.NDk6MA== or 00:49" value="v1.NDk6MA==">
+      </div>
+
+      <button class="fr-btn-launch" id="btn-go">
+        🚀 Launch Dual Sync Player
+      </button>
+    </div>
+
+    <div class="fr-features">
+      <div class="fr-feat-item">
+        <strong>📱 100% Zero-Install</strong>
+        Runs directly in mobile Safari, Chrome, and native YouTube app links.
+      </div>
+      <div class="fr-feat-item">
+        <strong>🪟 Draggable PiP</strong>
+        Touch-drag and resize the floating window anywhere on screen.
+      </div>
+      <div class="fr-feat-item">
+        <strong>⚡ 50/50 Split Mode</strong>
+        Side-by-side view optimized for mobile landscape and tablets.
+      </div>
+      <div class="fr-feat-item">
+        <strong>🔄 Lossless Sync</strong>
+        Auto-pauses during commentary and resumes on playback.
+      </div>
+    </div>
+  </div>
+
+  <script src="js/sync_engine.js"></script>
+  <script>
+    document.getElementById('btn-go').onclick = () => {
+      const rVal = document.getElementById('in-reaction').value.trim();
+      const oVal = document.getElementById('in-original').value.trim();
+      const tVal = document.getElementById('in-token').value.trim();
+
+      const rId = FairReactSyncEngine.extractVideoId(rVal) || rVal;
+      const oId = FairReactSyncEngine.extractVideoId(oVal) || oVal;
+
+      let token = tVal;
+      if (tVal.includes(':') && !tVal.startsWith('v1.')) {
+        const sec = FairReactSyncEngine.parseTimeToSeconds(tVal);
+        token = FairReactSyncEngine.encodeTimeline([{ reactTime: sec, origTime: 0, isPause: false }]);
+      }
+
+      window.location.href = `watch.html?r=${encodeURIComponent(rId)}&o=${encodeURIComponent(oId)}&t=${encodeURIComponent(token)}`;
+    };
+  </script>
+</body>
+</html>

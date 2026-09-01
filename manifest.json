@@ -1,0 +1,9 @@
+{
+  "name": "FairReact Dual Player",
+  "short_name": "FairReact",
+  "start_url": "watch.html",
+  "display": "standalone",
+  "background_color": "#090d16",
+  "theme_color": "#111827",
+  "description": "Universal Dual-Sync Reaction Video Player with Floating PiP and 50/50 Split-Screen."
+}
