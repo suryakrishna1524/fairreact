@@ -1,6 +1,13 @@
 {
+  "outputDirectory": ".",
   "cleanUrls": false,
   "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/watch",
+      "destination": "/watch.html"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
