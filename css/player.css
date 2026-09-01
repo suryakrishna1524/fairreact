@@ -401,7 +401,7 @@ body {
   color: #818cf8;
 }
 
-/* Floating PiP Window (Exact Extension Look & Responsive Touch Behavior) */
+/* Floating PiP Window (Pre-warmed with Zero-Delay Instant Display) */
 .fr-pip-window {
   position: absolute;
   top: 20px;
@@ -421,7 +421,9 @@ body {
   overflow: hidden;
   z-index: 50;
   touch-action: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, opacity 0.25s ease, transform 0.25s ease;
+  opacity: 1;
+  visibility: visible;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease;
 }
 
 .fr-pip-window:hover {
@@ -429,10 +431,9 @@ body {
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.9), 0 0 15px rgba(99, 102, 241, 0.3);
 }
 
-/* Hard Hidden State for PiP Window */
+/* Zero-Latency Pre-Warmed Hidden State */
 .fr-pip-window.hidden,
 #pip-window.hidden {
-  display: none !important;
   opacity: 0 !important;
   visibility: hidden !important;
   pointer-events: none !important;

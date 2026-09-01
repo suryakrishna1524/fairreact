@@ -1,6 +1,6 @@
 /**
  * FairReact Universal Web Player App
- * Ultra-Smooth Glitch-Free Sync Engine with Mobile Unlocking and Cache Busting.
+ * Ultra-Smooth Glitch-Free Sync Engine with Zero-Delay Pre-Warming.
  */
 
 (function () {
@@ -11,6 +11,7 @@
   let originalPlayer = null;
   let isReactorReady = false;
   let isOriginalReady = false;
+  let isOriginalPrewarmed = false;
   let isReactorPlaying = false;
   let isOriginalSeeking = false;
   let lastSeekTimestamp = 0;
@@ -70,10 +71,6 @@
   function hardClosePiP() {
     if (pipWindow) {
       pipWindow.classList.add('hidden');
-      pipWindow.style.setProperty('display', 'none', 'important');
-      pipWindow.style.setProperty('visibility', 'hidden', 'important');
-      pipWindow.style.setProperty('opacity', '0', 'important');
-      pipWindow.style.setProperty('pointer-events', 'none', 'important');
     }
     isPipVisible = false;
     if (originalPlayer && isOriginalReady) {
@@ -88,12 +85,21 @@
   function hardOpenPiP() {
     if (pipWindow) {
       pipWindow.classList.remove('hidden');
-      pipWindow.style.removeProperty('display');
-      pipWindow.style.removeProperty('visibility');
-      pipWindow.style.removeProperty('opacity');
-      pipWindow.style.removeProperty('pointer-events');
     }
     isPipVisible = true;
+  }
+
+  // Pre-warms the original video into browser memory so it renders in 0.00s with zero buffering delay
+  function prewarmOriginalVideo() {
+    if (!originalPlayer || !isOriginalReady || isOriginalPrewarmed) return;
+    try {
+      const firstSeg = syncEngine && syncEngine.segments && syncEngine.segments[0];
+      const startPos = firstSeg ? firstSeg.origStart : 0;
+      originalPlayer.mute();
+      originalPlayer.seekTo(startPos, true);
+      originalPlayer.playVideo();
+      isOriginalPrewarmed = true;
+    } catch (e) {}
   }
 
   function evaluatePiPState(currentTime) {
@@ -112,11 +118,13 @@
     const target = syncEngine.calculateTarget(currentTime);
     const isOriginalContentFinished = (maxOrigEnd !== Infinity && target.targetTime >= maxOrigEnd);
 
+    // ZONE 1: OUTRO / POST-REACTION END / SONG FINISHED
     if (currentTime >= reactionEnd || target.state === 'ENDED' || isOriginalContentFinished) {
       hardClosePiP();
       return;
     }
 
+    // ZONE 2: INTRO / PRE-REACTION (currentTime < reactionStart - 3.0)
     if (currentTime < reactionStart - 3.0) {
       hardClosePiP();
       if (originalPlayer && isOriginalReady) {
@@ -126,7 +134,7 @@
             lastSeekTimestamp = Date.now();
             originalPlayer.seekTo(firstSeg.origStart, true);
           }
-          if (originalPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+          if (originalPlayer.getPlayerState() === YT.PlayerState.PLAYING && isOriginalPrewarmed) {
             originalPlayer.pauseVideo();
           }
         } catch (e) {}
@@ -134,6 +142,7 @@
       return;
     }
 
+    // ZONE 3: 3-SECOND COUNTDOWN (reactionStart - 3.0 <= currentTime < reactionStart)
     if (currentTime < reactionStart) {
       const timeUntilStart = reactionStart - currentTime;
       hardOpenPiP();
@@ -150,7 +159,7 @@
             lastSeekTimestamp = Date.now();
             originalPlayer.seekTo(firstSeg.origStart, true);
           }
-          if (originalPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+          if (originalPlayer.getPlayerState() === YT.PlayerState.PLAYING && isOriginalPrewarmed) {
             originalPlayer.pauseVideo();
           }
         } catch (e) {}
@@ -158,6 +167,7 @@
       return;
     }
 
+    // ZONE 4: ACTIVE REACTION (reactionStart <= currentTime < reactionEnd)
     if (target.state === 'PLAYING') {
       hardOpenPiP();
       const statusPill = document.getElementById('pip-status-pill');
@@ -183,6 +193,10 @@
           }
 
           if (origState === YT.PlayerState.PAUSED || origState === YT.PlayerState.CUED || origState === -1) {
+            if (!isPipMuted) {
+              originalPlayer.unMute();
+              originalPlayer.setVolume(pipVolume);
+            }
             originalPlayer.playVideo();
           }
         } else if (reactorState === YT.PlayerState.PAUSED) {
@@ -274,9 +288,7 @@
 
   function onOriginalPlayerReady() {
     isOriginalReady = true;
-    if (originalPlayer && typeof originalPlayer.setVolume === 'function') {
-      originalPlayer.setVolume(pipVolume);
-    }
+    prewarmOriginalVideo();
     checkBothReady();
   }
 
@@ -323,6 +335,13 @@
   function onOriginalPlayerStateChange(event) {
     if (event.data === YT.PlayerState.PLAYING) {
       isOriginalSeeking = false;
+      // If we just pre-warmed and reaction is still in intro, pause immediately
+      const curTime = reactorPlayer ? reactorPlayer.getCurrentTime() || 0 : 0;
+      const firstSeg = syncEngine && syncEngine.segments && syncEngine.segments[0];
+      const startPos = firstSeg ? firstSeg.reactStart : 0;
+      if (curTime < startPos && isOriginalPrewarmed) {
+        originalPlayer.pauseVideo();
+      }
     }
   }
 
@@ -372,6 +391,8 @@
   function togglePlayPause() {
     if (!reactorPlayer || !isReactorReady) return;
     if (bigPlayOverlay) bigPlayOverlay.classList.add('hidden');
+
+    prewarmOriginalVideo();
 
     try {
       const state = reactorPlayer.getPlayerState();
