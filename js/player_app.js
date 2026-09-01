@@ -1,6 +1,6 @@
 /**
  * FairReact Universal Web Player App
- * Ultra-Smooth Glitch-Free Sync Engine with Zero-Loop Guards and Mobile Autoplay Unlocking.
+ * Ultra-Smooth Glitch-Free Sync Engine with Mobile Unlocking and Cache Busting.
  */
 
 (function () {
@@ -12,7 +12,6 @@
   let isReactorReady = false;
   let isOriginalReady = false;
   let isReactorPlaying = false;
-  let isOriginalPlaying = false;
   let isOriginalSeeking = false;
   let lastSeekTimestamp = 0;
 
@@ -66,6 +65,7 @@
   }
 
   const pipWindow = document.getElementById('pip-window');
+  const bigPlayOverlay = document.getElementById('big-play-overlay');
 
   function hardClosePiP() {
     if (pipWindow) {
@@ -257,6 +257,9 @@
         onStateChange: onOriginalPlayerStateChange
       }
     });
+
+    window.reactorPlayer = reactorPlayer;
+    window.originalPlayer = originalPlayer;
   };
 
   const tag = document.createElement('script');
@@ -290,6 +293,7 @@
     if (event.data === YT.PlayerState.PLAYING) {
       isReactorPlaying = true;
       if (playBtn) playBtn.textContent = '⏸';
+      if (bigPlayOverlay) bigPlayOverlay.classList.add('hidden');
       startCinemaAutoHide();
       startPiPAutoHide();
       if (originalPlayer && isOriginalReady) {
@@ -318,12 +322,7 @@
 
   function onOriginalPlayerStateChange(event) {
     if (event.data === YT.PlayerState.PLAYING) {
-      isOriginalPlaying = true;
       isOriginalSeeking = false;
-    } else if (event.data === YT.PlayerState.PAUSED) {
-      isOriginalPlaying = false;
-    } else if (event.data === YT.PlayerState.BUFFERING) {
-      isOriginalPlaying = false;
     }
   }
 
@@ -372,6 +371,8 @@
 
   function togglePlayPause() {
     if (!reactorPlayer || !isReactorReady) return;
+    if (bigPlayOverlay) bigPlayOverlay.classList.add('hidden');
+
     try {
       const state = reactorPlayer.getPlayerState();
       if (state === YT.PlayerState.PLAYING || state === YT.PlayerState.BUFFERING) {
@@ -386,6 +387,18 @@
       reactorPlayer.playVideo();
     }
     revealCinemaControls();
+  }
+
+  if (bigPlayOverlay) {
+    bigPlayOverlay.addEventListener('click', (e) => {
+      e.stopPropagation();
+      togglePlayPause();
+    });
+    bigPlayOverlay.addEventListener('touchend', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      togglePlayPause();
+    });
   }
 
   if (btnCinemaPlay) {
@@ -455,6 +468,8 @@
 
   function seekToScrubberPosition(e) {
     if (!reactorPlayer || !isReactorReady) return;
+    if (bigPlayOverlay) bigPlayOverlay.classList.add('hidden');
+
     const rect = scrubberTrack.getBoundingClientRect();
     const clientX = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : (e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientX : 0));
     const clickX = Math.max(0, Math.min(rect.width, clientX - rect.left));

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>FairReact - Universal Dual Sync Player</title>
-  <link rel="stylesheet" href="css/player.css">
+  <link rel="stylesheet" href="css/player.css?v=2.1.0">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -22,10 +22,20 @@
       <span class="fr-cinema-brand-title">FairReact</span>
     </a>
 
+    <!-- Big Play Overlay for Instant Mobile Activation -->
+    <div class="fr-big-play-overlay" id="big-play-overlay">
+      <button class="fr-big-play-btn" id="btn-big-play" aria-label="Start Watching">
+        <svg viewBox="0 0 24 24" width="40" height="40" fill="white">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+      </button>
+      <span class="fr-big-play-text">Tap to Play Reaction</span>
+    </div>
+
     <!-- Main Reaction Player Container -->
     <div class="fr-main-player-box" id="main-player-box">
       <div id="main-player"></div>
-      <!-- Click / Tap Interaction Shield (Instant Seek with Zero Distracting Animations) -->
+      <!-- Click / Tap Interaction Shield -->
       <div class="fr-video-tap-shield" id="video-tap-shield"></div>
     </div>
 
@@ -64,10 +74,10 @@
             <div class="fr-popup-menu" id="menu-speed">
               <button class="fr-menu-item" data-speed="0.5">0.5x</button>
               <button class="fr-menu-item" data-speed="0.75">0.75x</button>
-              <button class="fr-menu-item active" data-speed="1">Normal (1x)</button>
+              <button class="fr-menu-item active" data-speed="1.0">1.0x (Normal)</button>
               <button class="fr-menu-item" data-speed="1.25">1.25x</button>
               <button class="fr-menu-item" data-speed="1.5">1.5x</button>
-              <button class="fr-menu-item" data-speed="2">2.0x</button>
+              <button class="fr-menu-item" data-speed="2.0">2.0x</button>
             </div>
           </div>
 
@@ -75,7 +85,7 @@
           <div class="fr-menu-container">
             <button class="fr-ctrl-btn" id="btn-cinema-quality" title="Video Quality">⚙️</button>
             <div class="fr-popup-menu" id="menu-quality">
-              <button class="fr-menu-item active" data-quality="auto">Auto (HD)</button>
+              <button class="fr-menu-item active" data-quality="auto">Auto</button>
               <button class="fr-menu-item" data-quality="hd1080">1080p HD</button>
               <button class="fr-menu-item" data-quality="hd720">720p HD</button>
               <button class="fr-menu-item" data-quality="large">480p</button>
@@ -83,40 +93,41 @@
             </div>
           </div>
 
-          <!-- Fullscreen -->
-          <button class="fr-ctrl-btn" id="btn-cinema-fullscreen" title="Fullscreen (F)">⛶</button>
+          <!-- Fullscreen Toggle -->
+          <button class="fr-ctrl-btn" id="btn-cinema-fullscreen" title="Toggle Fullscreen (F)">⛶</button>
         </div>
       </div>
     </div>
 
-    <!-- Floating PiP Window (Exact Extension UI - Controlled only via Reaction Video & Footer) -->
-    <div class="fr-player-window fr-pip-window hidden" id="pip-window">
-      <!-- Auto-hiding Header -->
-      <div class="fr-header fr-pip-header" id="pip-header" title="Drag to move PiP">
+    <!-- Floating PiP Window (Exact Extension Look & Smooth Sync) -->
+    <div class="fr-pip-window hidden" id="pip-window">
+      <!-- PiP Header -->
+      <div class="fr-pip-header" id="pip-header">
         <div class="fr-title-area">
-          <span class="fr-logo-badge">FAIRREACT</span>
+          <span class="fr-logo-badge">Original</span>
           <div class="fr-status-pill fr-status-sync" id="pip-status-pill">
             <span class="fr-status-dot"></span>
-            <span id="pip-status-text">Synchronizing...</span>
+            <span id="pip-status-text">Synced</span>
           </div>
         </div>
 
         <div class="fr-header-actions">
-          <button class="fr-btn-icon" id="btn-pip-size" title="Cycle Size (1x, 1.5x, 2x)">⤢</button>
-          <button class="fr-btn-icon" id="btn-pip-dock" title="Dock to Next Corner">🗖</button>
-          <button class="fr-btn-icon" id="btn-pip-reload" title="Re-sync Frame">🔄</button>
-          <button class="fr-btn-icon" id="btn-pip-toggle" title="Hide PiP">✕</button>
+          <button class="fr-btn-icon" id="btn-pip-reload" title="Re-sync frame">🔄</button>
+          <button class="fr-btn-icon" id="btn-pip-size" title="Cycle size">📐</button>
+          <button class="fr-btn-icon" id="btn-pip-dock" title="Cycle corners">📍</button>
+          <button class="fr-btn-icon" id="btn-pip-toggle" title="Close/Hide PiP">✕</button>
         </div>
       </div>
 
-      <!-- PiP Video Player Stage with Drag Shield -->
+      <!-- PiP Video Container -->
       <div class="fr-pip-stage">
         <div id="pip-player"></div>
-        <div class="fr-pip-click-shield" id="pip-click-shield" title="Drag to move PiP anywhere"></div>
+        <!-- Touch & Drag Shield on PiP -->
+        <div class="fr-pip-click-shield" id="pip-click-shield" title="Touch & Drag to Move"></div>
       </div>
 
-      <!-- Auto-hiding Footer Bar -->
-      <div class="fr-footer-bar fr-pip-footer" id="pip-footer">
+      <!-- PiP Footer Controls -->
+      <div class="fr-pip-footer" id="pip-footer">
         <div class="fr-footer-left">
           <button class="fr-btn-nudge" id="btn-reset-offset" title="Reset Drift Offset">0s</button>
         </div>
@@ -142,7 +153,7 @@
     </div>
   </main>
 
-  <script src="js/sync_engine.js"></script>
-  <script src="js/player_app.js"></script>
+  <script src="js/sync_engine.js?v=2.1.0"></script>
+  <script src="js/player_app.js?v=2.1.0"></script>
 </body>
 </html>
