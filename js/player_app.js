@@ -1,6 +1,6 @@
 /**
  * FairReact Universal Web Player App
- * Faithful 1-to-1 Implementation of the FairReact Master-Clock Synchronization Architecture.
+ * Dual-Lock Barrier Synchronization Engine with Instant Buffer Catch-Up & Zero-Lag Alignment.
  */
 
 (function () {
@@ -101,7 +101,7 @@
     }
   }
 
-  // 2. MASTER-CLOCK LIFECYCLE CONTROLLER (Identical to Extension content.js)
+  // 2. DUAL-LOCK LIFECYCLE CONTROLLER WITH INSTANT BUFFER CATCH-UP
   function handleSyncLifecycle(currentTime) {
     if (!syncEngine || !syncEngine.isActive || !reactorPlayer || !isReactorReady || !originalPlayer || !isOriginalReady) return;
 
@@ -128,7 +128,7 @@
         showPiP();
         updateStatusBadge('PRE_START', target.targetTime, target.timeUntilStart);
         const origTime = originalPlayer.getCurrentTime() || 0;
-        if (Math.abs(origTime - target.targetTime) > 0.5 && Date.now() - lastSeekTimestamp > 1000) {
+        if (Math.abs(origTime - target.targetTime) > 0.3 && Date.now() - lastSeekTimestamp > 600) {
           lastSeekTimestamp = Date.now();
           originalPlayer.seekTo(target.targetTime, true);
         }
@@ -149,17 +149,16 @@
         const origTime = originalPlayer.getCurrentTime() || 0;
         const drift = Math.abs(origTime - target.targetTime);
 
-        // Frame Alignment: If PiP is not playing, or has drifted by > 1.5s, seek and roll
-        if (originalPlayer.getPlayerState() !== YT.PlayerState.PLAYING || drift > 1.5) {
-          if (Date.now() - lastSeekTimestamp > 1000 && !isOriginalSeeking) {
-            lastSeekTimestamp = Date.now();
-            isOriginalSeeking = true;
-            originalPlayer.seekTo(target.targetTime, true);
-            setTimeout(() => { isOriginalSeeking = false; }, 500);
-          }
+        // Drift Auto-Correction: If drift exceeds 0.8s, catch up immediately
+        if (drift > 0.8 && Date.now() - lastSeekTimestamp > 600 && !isOriginalSeeking) {
+          lastSeekTimestamp = Date.now();
+          isOriginalSeeking = true;
+          originalPlayer.seekTo(target.targetTime, true);
+          setTimeout(() => { isOriginalSeeking = false; }, 400);
         }
 
-        if (originalPlayer.getPlayerState() !== YT.PlayerState.PLAYING && originalPlayer.getPlayerState() !== YT.PlayerState.BUFFERING) {
+        const origState = originalPlayer.getPlayerState();
+        if (origState !== YT.PlayerState.PLAYING && origState !== YT.PlayerState.BUFFERING) {
           if (!isPipMuted) {
             originalPlayer.unMute();
             originalPlayer.setVolume(pipVolume);
@@ -175,7 +174,7 @@
       showPiP();
       updateStatusBadge('PAUSED_ZONE', target.targetTime);
       const origTime = originalPlayer.getCurrentTime() || 0;
-      if (Math.abs(origTime - target.targetTime) > 1.0 && Date.now() - lastSeekTimestamp > 1000) {
+      if (Math.abs(origTime - target.targetTime) > 0.5 && Date.now() - lastSeekTimestamp > 600) {
         lastSeekTimestamp = Date.now();
         originalPlayer.seekTo(target.targetTime, true);
       }
@@ -258,10 +257,11 @@
   function checkBothReady() {
     if (isReactorReady && isOriginalReady) {
       if (syncWatchdogTimer) clearInterval(syncWatchdogTimer);
-      syncWatchdogTimer = setInterval(watchdogSync, 250);
+      syncWatchdogTimer = setInterval(watchdogSync, 200);
     }
   }
 
+  // 4. SMART STATE CHANGE HANDLERS (Asymmetric Buffer Barrier)
   function onReactorPlayerStateChange(event) {
     const playBtn = document.getElementById('btn-cinema-play');
 
@@ -270,7 +270,20 @@
       if (bigPlayOverlay) bigPlayOverlay.classList.add('hidden');
       startCinemaAutoHide();
       startPiPAutoHide();
+
       const curTime = reactorPlayer.getCurrentTime() || 0;
+      const target = syncEngine.calculateTarget(curTime);
+
+      if (originalPlayer && isOriginalReady) {
+        if (target.state === 'PLAYING') {
+          // Tell PiP to roll
+          if (!isPipMuted) {
+            originalPlayer.unMute();
+            originalPlayer.setVolume(pipVolume);
+          }
+          originalPlayer.playVideo();
+        }
+      }
       handleSyncLifecycle(curTime);
     } else if (event.data === YT.PlayerState.PAUSED) {
       if (playBtn) playBtn.textContent = '▶';
@@ -290,19 +303,39 @@
       if (originalPlayer && isOriginalReady) originalPlayer.pauseVideo();
       revealCinemaControls();
     } else if (event.data === YT.PlayerState.BUFFERING) {
+      // If Reactor buffers during playback, pause PiP until Reactor is ready
       if (originalPlayer && isOriginalReady && originalPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
         originalPlayer.pauseVideo();
       }
     }
   }
 
+  // Asymmetric Buffer Resolution: When PiP finishes buffering and starts playing, SNAP to live Reactor frame!
   function onOriginalPlayerStateChange(event) {
     if (event.data === YT.PlayerState.PLAYING) {
       isOriginalSeeking = false;
+      if (reactorPlayer && isReactorReady) {
+        const reactorState = reactorPlayer.getPlayerState();
+        if (reactorState === YT.PlayerState.PLAYING) {
+          const curTime = reactorPlayer.getCurrentTime() || 0;
+          const target = syncEngine.calculateTarget(curTime);
+          if (target.state === 'PLAYING') {
+            const origTime = originalPlayer.getCurrentTime() || 0;
+            const drift = Math.abs(origTime - target.targetTime);
+            // If PiP started late due to its buffer delay, snap immediately to live frame!
+            if (drift > 0.4 && Date.now() - lastSeekTimestamp > 500) {
+              lastSeekTimestamp = Date.now();
+              originalPlayer.seekTo(target.targetTime, true);
+            }
+          }
+        } else if (reactorState === YT.PlayerState.PAUSED) {
+          originalPlayer.pauseVideo();
+        }
+      }
     }
   }
 
-  // Active 250ms Watchdog Loop
+  // Active 200ms Watchdog Loop
   function watchdogSync() {
     if (!reactorPlayer || !originalPlayer || !isReactorReady || !isOriginalReady) return;
 
@@ -334,7 +367,7 @@
     handleSyncLifecycle(curTime);
   }
 
-  // 4. UI Controls & Master Play/Pause Toggle
+  // 5. UI Controls & Master Play/Pause Toggle
   const viewport = document.getElementById('fr-viewport');
   const scrubberTrack = document.getElementById('main-scrubber');
   const btnCinemaPlay = document.getElementById('btn-cinema-play');
@@ -669,7 +702,7 @@
     }
   });
 
-  // 5. Touch & Drag & Corner Resize Engine
+  // 6. Touch & Drag & Corner Resize Engine
   const pipHeader = document.getElementById('pip-header');
   const pipClickShield = document.getElementById('pip-click-shield');
   const dragOverlay = document.getElementById('drag-overlay');
