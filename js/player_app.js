@@ -1,6 +1,6 @@
 /**
  * FairReact Universal Web Player App
- * Ultra-Smooth Dual-Sync Engine with Simultaneous Play/Pause Lock and Frame-Accurate Alignment.
+ * Faithful 1-to-1 Implementation of the FairReact Master-Clock Synchronization Architecture.
  */
 
 (function () {
@@ -11,7 +11,6 @@
   let originalPlayer = null;
   let isReactorReady = false;
   let isOriginalReady = false;
-  let isOriginalPrewarmed = false;
   let isOriginalSeeking = false;
   let lastSeekTimestamp = 0;
 
@@ -24,6 +23,9 @@
   let isResizing = false;
   let isPinching = false;
   let isScrubbing = false;
+  let isChildEnded = false;
+  let childEndedAtReactorTime = Infinity;
+
   let dragOffset = { x: 0, y: 0 };
   let resizeStart = { x: 0, y: 0, w: 0, h: 0 };
   let pinchStart = { dist: 0, w: 0, h: 0 };
@@ -41,6 +43,7 @@
     { w: 520, h: 340 }
   ];
 
+  // 1. URL Parameters & Initialization
   function getUrlParams() {
     const params = new URLSearchParams(window.location.search);
     const rawR = params.get('r') || params.get('reaction') || params.get('v') || 'uPJq0RPLr9A';
@@ -67,167 +70,129 @@
   const pipWindow = document.getElementById('pip-window');
   const bigPlayOverlay = document.getElementById('big-play-overlay');
 
-  function hardClosePiP() {
-    if (pipWindow) {
-      pipWindow.classList.add('hidden');
-    }
-    isPipVisible = false;
-    if (originalPlayer && isOriginalReady) {
-      try {
-        if (originalPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
-          originalPlayer.pauseVideo();
-        }
-      } catch (e) {}
-    }
-  }
-
-  function hardOpenPiP() {
-    if (pipWindow) {
+  function showPiP() {
+    if (pipWindow && !isPipVisible) {
       pipWindow.classList.remove('hidden');
+      isPipVisible = true;
     }
-    isPipVisible = true;
   }
 
-  function prewarmOriginalVideo() {
-    if (!originalPlayer || !isOriginalReady || isOriginalPrewarmed) return;
-    try {
-      const firstSeg = syncEngine && syncEngine.segments && syncEngine.segments[0];
-      const startPos = firstSeg ? firstSeg.origStart : 0;
-      originalPlayer.mute();
-      originalPlayer.seekTo(startPos, true);
-      originalPlayer.playVideo();
-      isOriginalPrewarmed = true;
-    } catch (e) {}
+  function hidePiP() {
+    if (pipWindow && isPipVisible) {
+      pipWindow.classList.add('hidden');
+      isPipVisible = false;
+    }
   }
 
-  function evaluatePiPState(currentTime) {
-    if (!syncEngine || !syncEngine.isActive || !syncEngine.segments || syncEngine.segments.length === 0) {
-      hardClosePiP();
-      return;
+  function updateStatusBadge(state, targetTime = 0, timeUntilStart = 0) {
+    const statusPill = document.getElementById('pip-status-pill');
+    const statusText = document.getElementById('pip-status-text');
+    if (!statusPill || !statusText) return;
+
+    if (state === 'PRE_START') {
+      statusPill.className = 'fr-status-pill fr-status-waiting';
+      statusText.textContent = 'Starts in ' + Math.ceil(timeUntilStart) + 's';
+    } else if (state === 'PLAYING') {
+      statusPill.className = 'fr-status-pill fr-status-sync';
+      statusText.textContent = 'Synced (' + FairReactSyncEngine.formatSeconds(targetTime) + ')';
+    } else if (state === 'PAUSED_ZONE') {
+      statusPill.className = 'fr-status-pill fr-status-pause';
+      statusText.textContent = 'Reactor Commentary';
     }
+  }
 
-    const firstSeg = syncEngine.segments[0];
-    const lastSeg = syncEngine.segments[syncEngine.segments.length - 1];
-
-    const reactionStart = firstSeg.reactStart;
-    const reactionEnd = (lastSeg.reactEnd !== Infinity) ? lastSeg.reactEnd : Infinity;
-    const maxOrigEnd = (lastSeg.origEnd !== Infinity) ? lastSeg.origEnd : (lastSeg.origStart || Infinity);
+  // 2. MASTER-CLOCK LIFECYCLE CONTROLLER (Identical to Extension content.js)
+  function handleSyncLifecycle(currentTime) {
+    if (!syncEngine || !syncEngine.isActive || !reactorPlayer || !isReactorReady || !originalPlayer || !isOriginalReady) return;
 
     const target = syncEngine.calculateTarget(currentTime);
-    const isOriginalContentFinished = (maxOrigEnd !== Infinity && target.targetTime >= maxOrigEnd);
+    const reactorState = reactorPlayer.getPlayerState();
+    const isReactorPlaying = (reactorState === YT.PlayerState.PLAYING);
 
-    // ZONE 1: OUTRO / POST-REACTION END / SONG FINISHED
-    if (currentTime >= reactionEnd || target.state === 'ENDED' || isOriginalContentFinished) {
-      hardClosePiP();
+    // Rewind Detection: If user rewinds before the end timestamp, reset ended flag
+    if (target.state === 'PLAYING' || (target.state === 'PRE_START' && target.timeUntilStart <= 3.0) || target.state === 'PAUSED_ZONE') {
+      if (isChildEnded && currentTime < childEndedAtReactorTime - 1.0) {
+        isChildEnded = false;
+        childEndedAtReactorTime = Infinity;
+      }
+    }
+
+    if (isChildEnded && currentTime >= childEndedAtReactorTime - 1.0) {
+      hidePiP();
+      try { originalPlayer.pauseVideo(); } catch (e) {}
       return;
     }
 
-    // ZONE 2: INTRO / PRE-REACTION (currentTime < reactionStart - 3.0)
-    if (currentTime < reactionStart - 3.0) {
-      hardClosePiP();
-      if (originalPlayer && isOriginalReady) {
-        try {
-          const origTime = originalPlayer.getCurrentTime() || 0;
-          if (Math.abs(origTime - firstSeg.origStart) > 0.5 && Date.now() - lastSeekTimestamp > 600) {
-            lastSeekTimestamp = Date.now();
-            originalPlayer.seekTo(firstSeg.origStart, true);
-          }
-          if (originalPlayer.getPlayerState() === YT.PlayerState.PLAYING && isOriginalPrewarmed) {
-            originalPlayer.pauseVideo();
-          }
-        } catch (e) {}
-      }
-      return;
-    }
-
-    // ZONE 3: 3-SECOND COUNTDOWN (reactionStart - 3.0 <= currentTime < reactionStart)
-    if (currentTime < reactionStart) {
-      const timeUntilStart = reactionStart - currentTime;
-      hardOpenPiP();
-      const statusPill = document.getElementById('pip-status-pill');
-      const statusText = document.getElementById('pip-status-text');
-      if (statusPill) {
-        statusPill.className = 'fr-status-pill fr-status-waiting';
-        statusText.textContent = 'Starts in ' + Math.ceil(timeUntilStart) + 's';
-      }
-      if (originalPlayer && isOriginalReady) {
-        try {
-          const origTime = originalPlayer.getCurrentTime() || 0;
-          if (Math.abs(origTime - firstSeg.origStart) > 0.5 && Date.now() - lastSeekTimestamp > 600) {
-            lastSeekTimestamp = Date.now();
-            originalPlayer.seekTo(firstSeg.origStart, true);
-          }
-          if (originalPlayer.getPlayerState() === YT.PlayerState.PLAYING && isOriginalPrewarmed) {
-            originalPlayer.pauseVideo();
-          }
-        } catch (e) {}
-      }
-      return;
-    }
-
-    // ZONE 4: ACTIVE REACTION (reactionStart <= currentTime < reactionEnd)
-    if (target.state === 'PLAYING') {
-      hardOpenPiP();
-      const statusPill = document.getElementById('pip-status-pill');
-      const statusText = document.getElementById('pip-status-text');
-      if (statusPill) {
-        statusPill.className = 'fr-status-pill fr-status-sync';
-        statusText.textContent = 'Synced (' + FairReactSyncEngine.formatSeconds(target.targetTime) + ')';
-      }
-
-      if (originalPlayer && isOriginalReady) {
-        const reactorState = reactorPlayer ? reactorPlayer.getPlayerState() : -1;
-        const origState = originalPlayer.getPlayerState();
-
-        if (reactorState === YT.PlayerState.PLAYING) {
-          const origTime = originalPlayer.getCurrentTime() || 0;
-          const drift = Math.abs(origTime - target.targetTime);
-
-          // Tight 0.5s drift alignment with 600ms cooldown
-          if (drift > 0.5 && Date.now() - lastSeekTimestamp > 600 && !isOriginalSeeking) {
-            lastSeekTimestamp = Date.now();
-            isOriginalSeeking = true;
-            originalPlayer.seekTo(target.targetTime, true);
-            setTimeout(() => { isOriginalSeeking = false; }, 400);
-          }
-
-          if (origState === YT.PlayerState.PAUSED || origState === YT.PlayerState.CUED || origState === -1) {
-            if (!isPipMuted) {
-              originalPlayer.unMute();
-              originalPlayer.setVolume(pipVolume);
-            }
-            originalPlayer.playVideo();
-          }
-        } else if (reactorState === YT.PlayerState.PAUSED) {
-          if (origState === YT.PlayerState.PLAYING || origState === YT.PlayerState.BUFFERING) {
-            originalPlayer.pauseVideo();
-          }
-        }
-      }
-    } else if (target.state === 'PAUSED_ZONE') {
-      hardOpenPiP();
-      const statusPill = document.getElementById('pip-status-pill');
-      const statusText = document.getElementById('pip-status-text');
-      if (statusPill) {
-        statusPill.className = 'fr-status-pill fr-status-pause';
-        statusText.textContent = 'Reactor Commentary';
-      }
-      if (originalPlayer && isOriginalReady) {
-        const origState = originalPlayer.getPlayerState();
-        if (origState === YT.PlayerState.PLAYING) {
-          originalPlayer.pauseVideo();
-        }
+    if (target.state === 'PRE_START') {
+      if (target.timeUntilStart <= 3.0) {
+        showPiP();
+        updateStatusBadge('PRE_START', target.targetTime, target.timeUntilStart);
         const origTime = originalPlayer.getCurrentTime() || 0;
-        if (Math.abs(origTime - target.targetTime) > 0.5 && Date.now() - lastSeekTimestamp > 600) {
+        if (Math.abs(origTime - target.targetTime) > 0.5 && Date.now() - lastSeekTimestamp > 1000) {
           lastSeekTimestamp = Date.now();
           originalPlayer.seekTo(target.targetTime, true);
         }
+        if (originalPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+          originalPlayer.pauseVideo();
+        }
+      } else {
+        hidePiP();
+        if (originalPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+          originalPlayer.pauseVideo();
+        }
       }
-    } else {
-      hardClosePiP();
+    } else if (target.state === 'PLAYING') {
+      showPiP();
+      updateStatusBadge('PLAYING', target.targetTime);
+
+      if (isReactorPlaying) {
+        const origTime = originalPlayer.getCurrentTime() || 0;
+        const drift = Math.abs(origTime - target.targetTime);
+
+        // Frame Alignment: If PiP is not playing, or has drifted by > 1.5s, seek and roll
+        if (originalPlayer.getPlayerState() !== YT.PlayerState.PLAYING || drift > 1.5) {
+          if (Date.now() - lastSeekTimestamp > 1000 && !isOriginalSeeking) {
+            lastSeekTimestamp = Date.now();
+            isOriginalSeeking = true;
+            originalPlayer.seekTo(target.targetTime, true);
+            setTimeout(() => { isOriginalSeeking = false; }, 500);
+          }
+        }
+
+        if (originalPlayer.getPlayerState() !== YT.PlayerState.PLAYING && originalPlayer.getPlayerState() !== YT.PlayerState.BUFFERING) {
+          if (!isPipMuted) {
+            originalPlayer.unMute();
+            originalPlayer.setVolume(pipVolume);
+          }
+          originalPlayer.playVideo();
+        }
+      } else {
+        if (originalPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+          originalPlayer.pauseVideo();
+        }
+      }
+    } else if (target.state === 'PAUSED_ZONE') {
+      showPiP();
+      updateStatusBadge('PAUSED_ZONE', target.targetTime);
+      const origTime = originalPlayer.getCurrentTime() || 0;
+      if (Math.abs(origTime - target.targetTime) > 1.0 && Date.now() - lastSeekTimestamp > 1000) {
+        lastSeekTimestamp = Date.now();
+        originalPlayer.seekTo(target.targetTime, true);
+      }
+      if (originalPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+        originalPlayer.pauseVideo();
+      }
+    } else if (target.state === 'ENDED') {
+      isChildEnded = true;
+      childEndedAtReactorTime = currentTime;
+      hidePiP();
+      if (originalPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+        originalPlayer.pauseVideo();
+      }
     }
   }
 
+  // 3. YouTube Players Setup
   window.onYouTubeIframeAPIReady = function () {
     reactorPlayer = new YT.Player('main-player', {
       videoId: reactionId,
@@ -287,18 +252,16 @@
 
   function onOriginalPlayerReady() {
     isOriginalReady = true;
-    prewarmOriginalVideo();
     checkBothReady();
   }
 
   function checkBothReady() {
     if (isReactorReady && isOriginalReady) {
       if (syncWatchdogTimer) clearInterval(syncWatchdogTimer);
-      syncWatchdogTimer = setInterval(syncLoop, 200);
+      syncWatchdogTimer = setInterval(watchdogSync, 250);
     }
   }
 
-  // INSTANT SYNCHRONIZED EVENT HANDLERS
   function onReactorPlayerStateChange(event) {
     const playBtn = document.getElementById('btn-cinema-play');
 
@@ -307,27 +270,14 @@
       if (bigPlayOverlay) bigPlayOverlay.classList.add('hidden');
       startCinemaAutoHide();
       startPiPAutoHide();
-
-      if (originalPlayer && isOriginalReady) {
-        const curTime = reactorPlayer.getCurrentTime() || 0;
-        const target = syncEngine.calculateTarget(curTime);
-
-        if (target.state === 'PLAYING') {
-          originalPlayer.seekTo(target.targetTime, true);
-          if (!isPipMuted) {
-            originalPlayer.unMute();
-            originalPlayer.setVolume(pipVolume);
-          }
-          originalPlayer.playVideo();
-        }
-        evaluatePiPState(curTime);
-      }
+      const curTime = reactorPlayer.getCurrentTime() || 0;
+      handleSyncLifecycle(curTime);
     } else if (event.data === YT.PlayerState.PAUSED) {
       if (playBtn) playBtn.textContent = '▶';
+      const curTime = reactorPlayer.getCurrentTime() || 0;
       if (originalPlayer && isOriginalReady) {
-        const curTime = reactorPlayer.getCurrentTime() || 0;
-        const target = syncEngine.calculateTarget(curTime);
         originalPlayer.pauseVideo();
+        const target = syncEngine.calculateTarget(curTime);
         if (target.state === 'PLAYING' || target.state === 'PAUSED_ZONE') {
           originalPlayer.seekTo(target.targetTime, true);
         }
@@ -336,7 +286,8 @@
       revealPiPControls();
     } else if (event.data === YT.PlayerState.ENDED) {
       if (playBtn) playBtn.textContent = '▶';
-      hardClosePiP();
+      hidePiP();
+      if (originalPlayer && isOriginalReady) originalPlayer.pauseVideo();
       revealCinemaControls();
     } else if (event.data === YT.PlayerState.BUFFERING) {
       if (originalPlayer && isOriginalReady && originalPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
@@ -348,16 +299,11 @@
   function onOriginalPlayerStateChange(event) {
     if (event.data === YT.PlayerState.PLAYING) {
       isOriginalSeeking = false;
-      const curTime = reactorPlayer ? reactorPlayer.getCurrentTime() || 0 : 0;
-      const firstSeg = syncEngine && syncEngine.segments && syncEngine.segments[0];
-      const startPos = firstSeg ? firstSeg.reactStart : 0;
-      if (curTime < startPos && isOriginalPrewarmed && reactorPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
-        originalPlayer.pauseVideo();
-      }
     }
   }
 
-  function syncLoop() {
+  // Active 250ms Watchdog Loop
+  function watchdogSync() {
     if (!reactorPlayer || !originalPlayer || !isReactorReady || !isOriginalReady) return;
 
     let curTime = 0;
@@ -385,9 +331,10 @@
       }
     }
 
-    evaluatePiPState(curTime);
+    handleSyncLifecycle(curTime);
   }
 
+  // 4. UI Controls & Master Play/Pause Toggle
   const viewport = document.getElementById('fr-viewport');
   const scrubberTrack = document.getElementById('main-scrubber');
   const btnCinemaPlay = document.getElementById('btn-cinema-play');
@@ -400,40 +347,16 @@
   const btnCinemaCC = document.getElementById('btn-cinema-cc');
   const btnCinemaFullscreen = document.getElementById('btn-cinema-fullscreen');
 
-  // SIMULTANEOUS DUAL PLAY/PAUSE TRIGGER
   function togglePlayPause() {
     if (!reactorPlayer || !isReactorReady) return;
     if (bigPlayOverlay) bigPlayOverlay.classList.add('hidden');
 
-    prewarmOriginalVideo();
-
     try {
       const state = reactorPlayer.getPlayerState();
-      const curTime = reactorPlayer.getCurrentTime() || 0;
-      const target = syncEngine ? syncEngine.calculateTarget(curTime) : { state: 'IDLE', targetTime: 0 };
-
       if (state === YT.PlayerState.PLAYING || state === YT.PlayerState.BUFFERING) {
-        // PAUSE BOTH INSTANTLY
         reactorPlayer.pauseVideo();
-        if (originalPlayer && isOriginalReady) {
-          originalPlayer.pauseVideo();
-          if (target.state === 'PLAYING' || target.state === 'PAUSED_ZONE') {
-            originalPlayer.seekTo(target.targetTime, true);
-          }
-        }
-        if (btnCinemaPlay) btnCinemaPlay.textContent = '▶';
       } else {
-        // PLAY BOTH INSTANTLY
         reactorPlayer.playVideo();
-        if (originalPlayer && isOriginalReady && target.state === 'PLAYING') {
-          originalPlayer.seekTo(target.targetTime, true);
-          if (!isPipMuted) {
-            originalPlayer.unMute();
-            originalPlayer.setVolume(pipVolume);
-          }
-          originalPlayer.playVideo();
-        }
-        if (btnCinemaPlay) btnCinemaPlay.textContent = '⏸';
       }
     } catch (e) {
       reactorPlayer.playVideo();
@@ -487,11 +410,7 @@
           const seekTime = Math.max(0, curTime - 10);
           lastSeekTimestamp = Date.now();
           reactorPlayer.seekTo(seekTime, true);
-          const target = syncEngine.calculateTarget(seekTime);
-          if (originalPlayer && isOriginalReady && target.state === 'PLAYING') {
-            originalPlayer.seekTo(target.targetTime, true);
-          }
-          evaluatePiPState(seekTime);
+          handleSyncLifecycle(seekTime);
         }
       } else if (isRight) {
         if (reactorPlayer) {
@@ -499,11 +418,7 @@
           const seekTime = curTime + 10;
           lastSeekTimestamp = Date.now();
           reactorPlayer.seekTo(seekTime, true);
-          const target = syncEngine.calculateTarget(seekTime);
-          if (originalPlayer && isOriginalReady && target.state === 'PLAYING') {
-            originalPlayer.seekTo(target.targetTime, true);
-          }
-          evaluatePiPState(seekTime);
+          handleSyncLifecycle(seekTime);
         }
       } else {
         toggleFullscreen();
@@ -544,13 +459,7 @@
 
     lastSeekTimestamp = Date.now();
     reactorPlayer.seekTo(seekTime, true);
-
-    const target = syncEngine.calculateTarget(seekTime);
-    if (originalPlayer && isOriginalReady && (target.state === 'PLAYING' || target.state === 'PAUSED_ZONE')) {
-      originalPlayer.seekTo(target.targetTime, true);
-    }
-
-    evaluatePiPState(seekTime);
+    handleSyncLifecycle(seekTime);
   }
 
   if (scrubberTrack) {
@@ -746,11 +655,7 @@
         const seekTime = Math.max(0, curTime - 5);
         lastSeekTimestamp = Date.now();
         reactorPlayer.seekTo(seekTime, true);
-        const target = syncEngine.calculateTarget(seekTime);
-        if (originalPlayer && isOriginalReady && target.state === 'PLAYING') {
-          originalPlayer.seekTo(target.targetTime, true);
-        }
-        evaluatePiPState(seekTime);
+        handleSyncLifecycle(seekTime);
       }
     } else if (e.key === 'ArrowRight') {
       e.preventDefault();
@@ -759,15 +664,12 @@
         const seekTime = curTime + 5;
         lastSeekTimestamp = Date.now();
         reactorPlayer.seekTo(seekTime, true);
-        const target = syncEngine.calculateTarget(seekTime);
-        if (originalPlayer && isOriginalReady && target.state === 'PLAYING') {
-          originalPlayer.seekTo(target.targetTime, true);
-        }
-        evaluatePiPState(seekTime);
+        handleSyncLifecycle(seekTime);
       }
     }
   });
 
+  // 5. Touch & Drag & Corner Resize Engine
   const pipHeader = document.getElementById('pip-header');
   const pipClickShield = document.getElementById('pip-click-shield');
   const dragOverlay = document.getElementById('drag-overlay');
@@ -988,7 +890,7 @@
       const target = syncEngine.calculateTarget(curTime);
       lastSeekTimestamp = Date.now();
       originalPlayer.seekTo(target.targetTime, true);
-      evaluatePiPState(curTime);
+      handleSyncLifecycle(curTime);
       revealPiPControls();
     };
   }
@@ -997,11 +899,11 @@
   if (btnTogglePiP) {
     btnTogglePiP.onclick = () => {
       if (isPipVisible) {
-        hardClosePiP();
+        hidePiP();
       } else {
-        hardOpenPiP();
+        showPiP();
         const curTime = reactorPlayer ? reactorPlayer.getCurrentTime() || 0 : 0;
-        evaluatePiPState(curTime);
+        handleSyncLifecycle(curTime);
       }
     };
   }
