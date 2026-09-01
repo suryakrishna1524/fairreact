@@ -1,13 +1,14 @@
 {
+  "version": 2,
   "cleanUrls": true,
+  "rewrites": [
+    { "source": "/watch", "destination": "/watch.html" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
       "headers": [
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        }
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
       ]
     }
   ]
