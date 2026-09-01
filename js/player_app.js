@@ -1,6 +1,6 @@
 /**
  * FairReact Universal Web Player App
- * Ultra-Smooth Glitch-Free Sync Engine with Zero-Delay Pre-Warming.
+ * Ultra-Smooth Dual-Sync Engine with Simultaneous Play/Pause Lock and Frame-Accurate Alignment.
  */
 
 (function () {
@@ -12,7 +12,6 @@
   let isReactorReady = false;
   let isOriginalReady = false;
   let isOriginalPrewarmed = false;
-  let isReactorPlaying = false;
   let isOriginalSeeking = false;
   let lastSeekTimestamp = 0;
 
@@ -89,7 +88,6 @@
     isPipVisible = true;
   }
 
-  // Pre-warms the original video into browser memory so it renders in 0.00s with zero buffering delay
   function prewarmOriginalVideo() {
     if (!originalPlayer || !isOriginalReady || isOriginalPrewarmed) return;
     try {
@@ -130,7 +128,7 @@
       if (originalPlayer && isOriginalReady) {
         try {
           const origTime = originalPlayer.getCurrentTime() || 0;
-          if (Math.abs(origTime - firstSeg.origStart) > 2.0 && Date.now() - lastSeekTimestamp > 1500) {
+          if (Math.abs(origTime - firstSeg.origStart) > 0.5 && Date.now() - lastSeekTimestamp > 600) {
             lastSeekTimestamp = Date.now();
             originalPlayer.seekTo(firstSeg.origStart, true);
           }
@@ -155,7 +153,7 @@
       if (originalPlayer && isOriginalReady) {
         try {
           const origTime = originalPlayer.getCurrentTime() || 0;
-          if (Math.abs(origTime - firstSeg.origStart) > 2.0 && Date.now() - lastSeekTimestamp > 1500) {
+          if (Math.abs(origTime - firstSeg.origStart) > 0.5 && Date.now() - lastSeekTimestamp > 600) {
             lastSeekTimestamp = Date.now();
             originalPlayer.seekTo(firstSeg.origStart, true);
           }
@@ -185,11 +183,12 @@
           const origTime = originalPlayer.getCurrentTime() || 0;
           const drift = Math.abs(origTime - target.targetTime);
 
-          if (drift > 2.0 && Date.now() - lastSeekTimestamp > 1500 && !isOriginalSeeking) {
+          // Tight 0.5s drift alignment with 600ms cooldown
+          if (drift > 0.5 && Date.now() - lastSeekTimestamp > 600 && !isOriginalSeeking) {
             lastSeekTimestamp = Date.now();
             isOriginalSeeking = true;
             originalPlayer.seekTo(target.targetTime, true);
-            setTimeout(() => { isOriginalSeeking = false; }, 800);
+            setTimeout(() => { isOriginalSeeking = false; }, 400);
           }
 
           if (origState === YT.PlayerState.PAUSED || origState === YT.PlayerState.CUED || origState === -1) {
@@ -219,7 +218,7 @@
           originalPlayer.pauseVideo();
         }
         const origTime = originalPlayer.getCurrentTime() || 0;
-        if (Math.abs(origTime - target.targetTime) > 2.0 && Date.now() - lastSeekTimestamp > 1500) {
+        if (Math.abs(origTime - target.targetTime) > 0.5 && Date.now() - lastSeekTimestamp > 600) {
           lastSeekTimestamp = Date.now();
           originalPlayer.seekTo(target.targetTime, true);
         }
@@ -295,33 +294,47 @@
   function checkBothReady() {
     if (isReactorReady && isOriginalReady) {
       if (syncWatchdogTimer) clearInterval(syncWatchdogTimer);
-      syncWatchdogTimer = setInterval(syncLoop, 250);
+      syncWatchdogTimer = setInterval(syncLoop, 200);
     }
   }
 
+  // INSTANT SYNCHRONIZED EVENT HANDLERS
   function onReactorPlayerStateChange(event) {
     const playBtn = document.getElementById('btn-cinema-play');
 
     if (event.data === YT.PlayerState.PLAYING) {
-      isReactorPlaying = true;
       if (playBtn) playBtn.textContent = '⏸';
       if (bigPlayOverlay) bigPlayOverlay.classList.add('hidden');
       startCinemaAutoHide();
       startPiPAutoHide();
+
       if (originalPlayer && isOriginalReady) {
         const curTime = reactorPlayer.getCurrentTime() || 0;
+        const target = syncEngine.calculateTarget(curTime);
+
+        if (target.state === 'PLAYING') {
+          originalPlayer.seekTo(target.targetTime, true);
+          if (!isPipMuted) {
+            originalPlayer.unMute();
+            originalPlayer.setVolume(pipVolume);
+          }
+          originalPlayer.playVideo();
+        }
         evaluatePiPState(curTime);
       }
     } else if (event.data === YT.PlayerState.PAUSED) {
-      isReactorPlaying = false;
       if (playBtn) playBtn.textContent = '▶';
       if (originalPlayer && isOriginalReady) {
+        const curTime = reactorPlayer.getCurrentTime() || 0;
+        const target = syncEngine.calculateTarget(curTime);
         originalPlayer.pauseVideo();
+        if (target.state === 'PLAYING' || target.state === 'PAUSED_ZONE') {
+          originalPlayer.seekTo(target.targetTime, true);
+        }
       }
       revealCinemaControls();
       revealPiPControls();
     } else if (event.data === YT.PlayerState.ENDED) {
-      isReactorPlaying = false;
       if (playBtn) playBtn.textContent = '▶';
       hardClosePiP();
       revealCinemaControls();
@@ -335,11 +348,10 @@
   function onOriginalPlayerStateChange(event) {
     if (event.data === YT.PlayerState.PLAYING) {
       isOriginalSeeking = false;
-      // If we just pre-warmed and reaction is still in intro, pause immediately
       const curTime = reactorPlayer ? reactorPlayer.getCurrentTime() || 0 : 0;
       const firstSeg = syncEngine && syncEngine.segments && syncEngine.segments[0];
       const startPos = firstSeg ? firstSeg.reactStart : 0;
-      if (curTime < startPos && isOriginalPrewarmed) {
+      if (curTime < startPos && isOriginalPrewarmed && reactorPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
         originalPlayer.pauseVideo();
       }
     }
@@ -388,6 +400,7 @@
   const btnCinemaCC = document.getElementById('btn-cinema-cc');
   const btnCinemaFullscreen = document.getElementById('btn-cinema-fullscreen');
 
+  // SIMULTANEOUS DUAL PLAY/PAUSE TRIGGER
   function togglePlayPause() {
     if (!reactorPlayer || !isReactorReady) return;
     if (bigPlayOverlay) bigPlayOverlay.classList.add('hidden');
@@ -396,12 +409,30 @@
 
     try {
       const state = reactorPlayer.getPlayerState();
+      const curTime = reactorPlayer.getCurrentTime() || 0;
+      const target = syncEngine ? syncEngine.calculateTarget(curTime) : { state: 'IDLE', targetTime: 0 };
+
       if (state === YT.PlayerState.PLAYING || state === YT.PlayerState.BUFFERING) {
+        // PAUSE BOTH INSTANTLY
         reactorPlayer.pauseVideo();
-        if (originalPlayer && isOriginalReady) originalPlayer.pauseVideo();
+        if (originalPlayer && isOriginalReady) {
+          originalPlayer.pauseVideo();
+          if (target.state === 'PLAYING' || target.state === 'PAUSED_ZONE') {
+            originalPlayer.seekTo(target.targetTime, true);
+          }
+        }
         if (btnCinemaPlay) btnCinemaPlay.textContent = '▶';
       } else {
+        // PLAY BOTH INSTANTLY
         reactorPlayer.playVideo();
+        if (originalPlayer && isOriginalReady && target.state === 'PLAYING') {
+          originalPlayer.seekTo(target.targetTime, true);
+          if (!isPipMuted) {
+            originalPlayer.unMute();
+            originalPlayer.setVolume(pipVolume);
+          }
+          originalPlayer.playVideo();
+        }
         if (btnCinemaPlay) btnCinemaPlay.textContent = '⏸';
       }
     } catch (e) {
@@ -456,6 +487,10 @@
           const seekTime = Math.max(0, curTime - 10);
           lastSeekTimestamp = Date.now();
           reactorPlayer.seekTo(seekTime, true);
+          const target = syncEngine.calculateTarget(seekTime);
+          if (originalPlayer && isOriginalReady && target.state === 'PLAYING') {
+            originalPlayer.seekTo(target.targetTime, true);
+          }
           evaluatePiPState(seekTime);
         }
       } else if (isRight) {
@@ -464,6 +499,10 @@
           const seekTime = curTime + 10;
           lastSeekTimestamp = Date.now();
           reactorPlayer.seekTo(seekTime, true);
+          const target = syncEngine.calculateTarget(seekTime);
+          if (originalPlayer && isOriginalReady && target.state === 'PLAYING') {
+            originalPlayer.seekTo(target.targetTime, true);
+          }
           evaluatePiPState(seekTime);
         }
       } else {
@@ -505,6 +544,12 @@
 
     lastSeekTimestamp = Date.now();
     reactorPlayer.seekTo(seekTime, true);
+
+    const target = syncEngine.calculateTarget(seekTime);
+    if (originalPlayer && isOriginalReady && (target.state === 'PLAYING' || target.state === 'PAUSED_ZONE')) {
+      originalPlayer.seekTo(target.targetTime, true);
+    }
+
     evaluatePiPState(seekTime);
   }
 
@@ -701,6 +746,10 @@
         const seekTime = Math.max(0, curTime - 5);
         lastSeekTimestamp = Date.now();
         reactorPlayer.seekTo(seekTime, true);
+        const target = syncEngine.calculateTarget(seekTime);
+        if (originalPlayer && isOriginalReady && target.state === 'PLAYING') {
+          originalPlayer.seekTo(target.targetTime, true);
+        }
         evaluatePiPState(seekTime);
       }
     } else if (e.key === 'ArrowRight') {
@@ -710,6 +759,10 @@
         const seekTime = curTime + 5;
         lastSeekTimestamp = Date.now();
         reactorPlayer.seekTo(seekTime, true);
+        const target = syncEngine.calculateTarget(seekTime);
+        if (originalPlayer && isOriginalReady && target.state === 'PLAYING') {
+          originalPlayer.seekTo(target.targetTime, true);
+        }
         evaluatePiPState(seekTime);
       }
     }
