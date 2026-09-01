@@ -1,6 +1,6 @@
 /**
  * FairReact Universal Web Player App
- * High-Performance Dual-Sync Engine with 2D Horizontal & Vertical Resizing and Zero-Black-Bar Cinema Geometry.
+ * High-Performance Dual-Sync Engine with Dedicated Horizontal & Vertical Adjusters and 16:9 Snap.
  */
 
 (function () {
@@ -41,8 +41,8 @@
   // True 16:9 Cinema Presets (Zero Black Bars)
   const sizePresets = [
     { w: 240, h: 135 },
-    { w: 380, h: 214 },
-    { w: 520, h: 292 }
+    { w: 320, h: 180 },
+    { w: 480, h: 270 }
   ];
 
   // 1. URL Parameters & Initialization
@@ -207,7 +207,7 @@
     }
   }
 
-  // 3. YouTube Players Setup (With 720p / 480p Quality Optimization)
+  // 3. YouTube Players Setup
   window.onYouTubeIframeAPIReady = function () {
     reactorPlayer = new YT.Player('main-player', {
       videoId: reactionId,
@@ -504,8 +504,8 @@
 
     const progressFill = document.getElementById('main-progress-fill');
     const progressThumb = document.getElementById('main-progress-thumb');
-    if (progressFill) progressFill.style.width = (pct * 100) + '%';
-    if (progressThumb) progressThumb.style.left = (pct * 100) + '%';
+    if (progressFill) progressFill.style.width = pct + '%';
+    if (progressThumb) progressThumb.style.left = pct + '%';
 
     lastSeekTimestamp = Date.now();
     reactorPlayer.seekTo(seekTime, true);
@@ -720,13 +720,17 @@
   });
 
   // =========================================================================
-  // 6. 2D HORIZONTAL & VERTICAL RESIZING + MULTI-TOUCH PINCH SCALING
+  // 6. DEDICATED INDIVIDUAL HORIZONTAL & VERTICAL RESIZING
   // =========================================================================
   const pipHeader = document.getElementById('pip-header');
   const pipClickShield = document.getElementById('pip-click-shield');
   const dragOverlay = document.getElementById('drag-overlay');
-  const resizeHandleSE = document.getElementById('pip-resize-handle');
-  const resizeHandleSW = document.getElementById('pip-resize-sw');
+
+  const resizeHandleR = document.getElementById('pip-resize-r');   // Horizontal Width Only (Right)
+  const resizeHandleL = document.getElementById('pip-resize-l');   // Horizontal Width Only (Left)
+  const resizeHandleB = document.getElementById('pip-resize-b');   // Vertical Height Only (Bottom)
+  const resizeHandleSE = document.getElementById('pip-resize-handle'); // Corner SE
+  const resizeHandleSW = document.getElementById('pip-resize-sw');     // Corner SW
 
   function startDrag(e) {
     if (e.target.closest('button') || e.target.closest('input')) return;
@@ -815,8 +819,8 @@
     const currentDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
     const scale = currentDist / (pinchStart.dist || 1);
 
-    const newWidth = Math.max(160, Math.min(window.innerWidth * 0.96, pinchStart.w * scale));
-    const newHeight = Math.max(90, Math.min(window.innerHeight * 0.92, pinchStart.h * scale));
+    const newWidth = Math.max(140, Math.min(window.innerWidth * 0.96, pinchStart.w * scale));
+    const newHeight = Math.max(80, Math.min(window.innerHeight * 0.92, pinchStart.h * scale));
 
     pipWindow.style.width = newWidth + 'px';
     pipWindow.style.height = newHeight + 'px';
@@ -833,8 +837,8 @@
     pipClickShield.addEventListener('touchstart', startDrag, { passive: false });
   }
 
-  // 2D Corner Resizer Setup (SE and SW with independent Horizontal & Vertical control)
-  function setup2DResizer(handleEl, direction) {
+  // Setup Dedicated Edge and Corner Resizers
+  function setupDirectionalResizer(handleEl, direction) {
     if (!handleEl) return;
 
     const handleResizeStart = (e) => {
@@ -866,16 +870,31 @@
         const deltaX = curX - resizeStart.x;
         const deltaY = curY - resizeStart.y;
 
-        if (resizeStart.dir === 'se') {
-          // Bottom-Right Corner: Drag Right for Width, Drag Down for Height
-          const newW = Math.max(160, Math.min(window.innerWidth * 0.96, resizeStart.w + deltaX));
-          const newH = Math.max(90, Math.min(window.innerHeight * 0.92, resizeStart.h + deltaY));
+        if (resizeStart.dir === 'r') {
+          // HORIZONTAL WIDTH ONLY (Right side)
+          const newW = Math.max(140, Math.min(window.innerWidth * 0.96, resizeStart.w + deltaX));
+          pipWindow.style.width = newW + 'px';
+        } else if (resizeStart.dir === 'l') {
+          // HORIZONTAL WIDTH ONLY (Left side)
+          const newW = Math.max(140, Math.min(window.innerWidth * 0.96, resizeStart.w - deltaX));
+          const newLeft = Math.max(6, Math.min(window.innerWidth - newW - 6, resizeStart.left + deltaX));
+          pipWindow.style.width = newW + 'px';
+          pipWindow.style.left = newLeft + 'px';
+          pipWindow.style.right = 'auto';
+        } else if (resizeStart.dir === 'b') {
+          // VERTICAL HEIGHT ONLY (Bottom edge)
+          const newH = Math.max(80, Math.min(window.innerHeight * 0.92, resizeStart.h + deltaY));
+          pipWindow.style.height = newH + 'px';
+        } else if (resizeStart.dir === 'se') {
+          // CORNER SE (Both)
+          const newW = Math.max(140, Math.min(window.innerWidth * 0.96, resizeStart.w + deltaX));
+          const newH = Math.max(80, Math.min(window.innerHeight * 0.92, resizeStart.h + deltaY));
           pipWindow.style.width = newW + 'px';
           pipWindow.style.height = newH + 'px';
         } else if (resizeStart.dir === 'sw') {
-          // Bottom-Left Corner: Drag Left for Width, Drag Down for Height
-          const newW = Math.max(160, Math.min(window.innerWidth * 0.96, resizeStart.w - deltaX));
-          const newH = Math.max(90, Math.min(window.innerHeight * 0.92, resizeStart.h + deltaY));
+          // CORNER SW (Both)
+          const newW = Math.max(140, Math.min(window.innerWidth * 0.96, resizeStart.w - deltaX));
+          const newH = Math.max(80, Math.min(window.innerHeight * 0.92, resizeStart.h + deltaY));
           const newLeft = Math.max(6, Math.min(window.innerWidth - newW - 6, resizeStart.left + deltaX));
           pipWindow.style.width = newW + 'px';
           pipWindow.style.height = newH + 'px';
@@ -906,8 +925,22 @@
     handleEl.addEventListener('touchstart', handleResizeStart, { passive: false });
   }
 
-  setup2DResizer(resizeHandleSE, 'se');
-  setup2DResizer(resizeHandleSW, 'sw');
+  setupDirectionalResizer(resizeHandleR, 'r');
+  setupDirectionalResizer(resizeHandleL, 'l');
+  setupDirectionalResizer(resizeHandleB, 'b');
+  setupDirectionalResizer(resizeHandleSE, 'se');
+  setupDirectionalResizer(resizeHandleSW, 'sw');
+
+  // Snap to 16:9 Cinema Aspect Ratio (Instantly removes all black bars!)
+  const btnSnap169 = document.getElementById('btn-pip-169');
+  if (btnSnap169) {
+    btnSnap169.onclick = () => {
+      const curW = pipWindow.offsetWidth || 240;
+      const cinemaH = Math.round(curW * (9 / 16));
+      pipWindow.style.height = cinemaH + 'px';
+      revealPiPControls();
+    };
+  }
 
   function revealPiPControls() {
     if (pipWindow) pipWindow.classList.remove('fr-autohide-inactive');

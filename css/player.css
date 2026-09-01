@@ -406,8 +406,8 @@ body {
   position: absolute;
   top: 20px;
   right: 20px;
-  width: 380px;
-  height: 214px;
+  width: 320px;
+  height: 180px;
   min-width: 160px;
   min-height: 90px;
   max-width: 96vw;
@@ -453,7 +453,8 @@ body {
   pointer-events: none !important;
 }
 
-.fr-pip-window.fr-autohide-inactive .fr-resize-handle {
+.fr-pip-window.fr-autohide-inactive .fr-resize-handle,
+.fr-pip-window.fr-autohide-inactive .fr-edge-resizer {
   opacity: 0 !important;
   pointer-events: none !important;
 }
@@ -561,6 +562,8 @@ body {
   align-items: center;
   justify-content: center;
   transition: all 0.15s ease;
+  font-size: 11px;
+  font-weight: 700;
   touch-action: manipulation;
 }
 
@@ -569,7 +572,7 @@ body {
   color: #f8fafc;
 }
 
-/* PiP Middle Video Stage */
+/* PiP Middle Video Stage (Zero Black Bars Fit) */
 .fr-pip-stage {
   flex: 1;
   position: relative;
@@ -687,30 +690,102 @@ body {
   cursor: pointer;
 }
 
-/* Corner 2D Resize Grips (Horizontal & Vertical) */
+/* ========================================================
+   DEDICATED INDIVIDUAL HORIZONTAL & VERTICAL ADJUSTERS
+   ======================================================== */
+.fr-edge-resizer {
+  position: absolute;
+  z-index: 65;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: none;
+  transition: background 0.15s ease;
+}
+
+/* Right Edge Handle (Width / Horizontal Only) */
+.fr-edge-r {
+  top: 36px;
+  bottom: 38px;
+  right: 0;
+  width: 18px;
+  cursor: ew-resize;
+}
+
+/* Left Edge Handle (Width / Horizontal Only) */
+.fr-edge-l {
+  top: 36px;
+  bottom: 38px;
+  left: 0;
+  width: 18px;
+  cursor: ew-resize;
+}
+
+/* Bottom Edge Handle (Height / Vertical Only) */
+.fr-edge-b {
+  bottom: 0;
+  left: 36px;
+  right: 36px;
+  height: 18px;
+  cursor: ns-resize;
+}
+
+/* Visual Grabber Bars */
+.fr-edge-pill-v {
+  width: 4px;
+  height: 28px;
+  background: rgba(129, 140, 248, 0.6);
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(99, 102, 241, 0.5);
+  transition: all 0.15s ease;
+}
+
+.fr-edge-pill-h {
+  width: 28px;
+  height: 4px;
+  background: rgba(129, 140, 248, 0.6);
+  border-radius: 2px;
+  box-shadow: 0 0 6px rgba(99, 102, 241, 0.5);
+  transition: all 0.15s ease;
+}
+
+.fr-edge-resizer:hover .fr-edge-pill-v,
+.fr-edge-resizer:active .fr-edge-pill-v {
+  width: 6px;
+  height: 36px;
+  background: #818cf8;
+}
+
+.fr-edge-resizer:hover .fr-edge-pill-h,
+.fr-edge-resizer:active .fr-edge-pill-h {
+  width: 36px;
+  height: 6px;
+  background: #818cf8;
+}
+
+/* Corner Handles */
 .fr-resize-handle {
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   cursor: se-resize;
-  z-index: 60;
+  z-index: 70;
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
-  padding: 6px;
+  padding: 5px;
   touch-action: none;
-  transition: opacity 0.2s ease;
 }
 
 .fr-resize-handle::after {
   content: '';
-  width: 12px;
-  height: 12px;
-  border-right: 3px solid #818cf8;
-  border-bottom: 3px solid #818cf8;
-  border-radius: 2px;
+  width: 10px;
+  height: 10px;
+  border-right: 2.5px solid #818cf8;
+  border-bottom: 2.5px solid #818cf8;
+  border-radius: 1px;
 }
 
 .fr-resize-sw {
@@ -722,8 +797,8 @@ body {
 
 .fr-resize-sw::after {
   border-right: none;
-  border-left: 3px solid #818cf8;
-  border-bottom: 3px solid #818cf8;
+  border-left: 2.5px solid #818cf8;
+  border-bottom: 2.5px solid #818cf8;
 }
 
 /* Pointer Blocker Overlay during Drag */
@@ -798,8 +873,8 @@ body {
   .fr-pip-window {
     width: 240px;
     height: 135px;
-    min-width: 160px;
-    min-height: 90px;
+    min-width: 140px;
+    min-height: 80px;
     top: 10px;
     right: 10px;
     border-radius: 10px;

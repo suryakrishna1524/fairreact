@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>FairReact - Universal Dual Sync Player</title>
-  <link rel="stylesheet" href="css/player.css?v=2.7.0">
+  <link rel="stylesheet" href="css/player.css?v=2.8.0">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#000000">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -112,6 +112,7 @@
         </div>
 
         <div class="fr-header-actions">
+          <button class="fr-btn-icon" id="btn-pip-169" title="Snap to 16:9 Cinema (Zero Black Bars)">16:9</button>
           <button class="fr-btn-icon" id="btn-pip-reload" title="Re-sync frame">🔄</button>
           <button class="fr-btn-icon" id="btn-pip-size" title="Cycle size">📐</button>
           <button class="fr-btn-icon" id="btn-pip-dock" title="Cycle corners">📍</button>
@@ -148,13 +149,26 @@
         </div>
       </div>
 
-      <!-- Corner 2D Resize Grips (Horizontal & Vertical) -->
-      <div class="fr-resize-handle fr-resize-se" id="pip-resize-handle" title="Drag to resize (Both Horizontal & Vertical)"></div>
-      <div class="fr-resize-handle fr-resize-sw" id="pip-resize-sw" title="Drag left corner to resize"></div>
+      <!-- Dedicated Individual Adjusters -->
+      <!-- 1. Right Edge (Horizontal Width Only) -->
+      <div class="fr-edge-resizer fr-edge-r" id="pip-resize-r" title="Drag to adjust Width (Horizontal)">
+        <div class="fr-edge-pill-v"></div>
+      </div>
+      <!-- 2. Left Edge (Horizontal Width Only) -->
+      <div class="fr-edge-resizer fr-edge-l" id="pip-resize-l" title="Drag to adjust Width (Horizontal)">
+        <div class="fr-edge-pill-v"></div>
+      </div>
+      <!-- 3. Bottom Edge (Vertical Height Only) -->
+      <div class="fr-edge-resizer fr-edge-b" id="pip-resize-b" title="Drag to adjust Height (Vertical)">
+        <div class="fr-edge-pill-h"></div>
+      </div>
+      <!-- 4. Corner Handles (Diagonal) -->
+      <div class="fr-resize-handle fr-resize-se" id="pip-resize-handle" title="Drag Corner to resize"></div>
+      <div class="fr-resize-handle fr-resize-sw" id="pip-resize-sw" title="Drag Left Corner to resize"></div>
     </div>
   </main>
 
-  <script src="js/sync_engine.js?v=2.7.0"></script>
-  <script src="js/player_app.js?v=2.7.0"></script>
+  <script src="js/sync_engine.js?v=2.8.0"></script>
+  <script src="js/player_app.js?v=2.8.0"></script>
 </body>
 </html>
