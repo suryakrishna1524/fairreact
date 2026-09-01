@@ -1,6 +1,6 @@
 /**
  * FairReact Universal Web Player App
- * High-Performance Dual-Sync Engine with Quality Optimization, Barrier Hold, and Micro-Rate Catch-Up.
+ * High-Performance Dual-Sync Engine with 2D Horizontal & Vertical Resizing and Zero-Black-Bar Cinema Geometry.
  */
 
 (function () {
@@ -28,7 +28,7 @@
   let childEndedAtReactorTime = Infinity;
 
   let dragOffset = { x: 0, y: 0 };
-  let resizeStart = { x: 0, y: 0, w: 0, h: 0 };
+  let resizeStart = { x: 0, y: 0, w: 0, h: 0, left: 0, top: 0, dir: 'se' };
   let pinchStart = { dist: 0, w: 0, h: 0 };
 
   let reactorVolume = 100;
@@ -38,10 +38,11 @@
   let currentDockIndex = 0;
   let currentSizeIndex = 1;
 
+  // True 16:9 Cinema Presets (Zero Black Bars)
   const sizePresets = [
-    { w: 240, h: 165 },
-    { w: 380, h: 255 },
-    { w: 520, h: 340 }
+    { w: 240, h: 135 },
+    { w: 380, h: 214 },
+    { w: 520, h: 292 }
   ];
 
   // 1. URL Parameters & Initialization
@@ -148,28 +149,25 @@
 
       if (isReactorPlaying) {
         const origTime = originalPlayer.getCurrentTime() || 0;
-        const drift = origTime - target.targetTime; // Positive = PiP is ahead, Negative = PiP is behind
+        const drift = origTime - target.targetTime;
         const absDrift = Math.abs(drift);
 
-        // TIER 1: Hard Drift (> 0.7s) -> Direct Instant Snap
+        // TIER 1: Hard Drift (> 0.7s) -> Instant Snap
         if (absDrift > 0.7 && Date.now() - lastSeekTimestamp > 600 && !isOriginalSeeking) {
           lastSeekTimestamp = Date.now();
           isOriginalSeeking = true;
           originalPlayer.seekTo(target.targetTime, true);
           setTimeout(() => { isOriginalSeeking = false; }, 350);
         } 
-        // TIER 2: Micro-Drift (0.15s - 0.7s) -> Seamless Playback Rate Catch-Up (Zero Buffering Delay!)
+        // TIER 2: Micro-Drift (0.15s - 0.7s) -> Adaptive Micro-Rate Catch-Up
         else if (absDrift > 0.15 && Date.now() - lastRateAdjustTimestamp > 300) {
           lastRateAdjustTimestamp = Date.now();
           if (drift < 0) {
-            // PiP is slightly behind: Speed up to 1.15x for a brief moment to catch up smoothly
             originalPlayer.setPlaybackRate(1.15);
           } else {
-            // PiP is slightly ahead: Slow down to 0.85x
             originalPlayer.setPlaybackRate(0.85);
           }
         } else if (absDrift <= 0.12) {
-          // Perfectly locked in sync: Restore normal 1.0x rate
           if (reactorPlayer.getPlaybackRate) {
             originalPlayer.setPlaybackRate(reactorPlayer.getPlaybackRate() || 1.0);
           }
@@ -209,7 +207,7 @@
     }
   }
 
-  // 3. YouTube Players Setup (With Mobile 720p / 480p Quality Optimization)
+  // 3. YouTube Players Setup (With 720p / 480p Quality Optimization)
   window.onYouTubeIframeAPIReady = function () {
     reactorPlayer = new YT.Player('main-player', {
       videoId: reactionId,
@@ -273,7 +271,6 @@
   function onOriginalPlayerReady() {
     isOriginalReady = true;
     if (originalPlayer && typeof originalPlayer.setPlaybackQuality === 'function') {
-      // Set PiP to lightweight 480p/720p for instant zero-latency loading on mobile
       originalPlayer.setPlaybackQuality('large');
     }
     checkBothReady();
@@ -282,12 +279,11 @@
   function checkBothReady() {
     if (isReactorReady && isOriginalReady) {
       if (syncWatchdogTimer) clearInterval(syncWatchdogTimer);
-      // High-Frequency 100ms Ultra-Smooth Watchdog Loop
       syncWatchdogTimer = setInterval(watchdogSync, 100);
     }
   }
 
-  // 4. SMART STATE CHANGE HANDLERS (Asymmetric Buffer Barrier)
+  // 4. SMART STATE CHANGE HANDLERS
   function onReactorPlayerStateChange(event) {
     const playBtn = document.getElementById('btn-cinema-play');
 
@@ -357,7 +353,6 @@
     }
   }
 
-  // Active 100ms Watchdog Loop
   function watchdogSync() {
     if (!reactorPlayer || !originalPlayer || !isReactorReady || !isOriginalReady) return;
 
@@ -724,11 +719,14 @@
     }
   });
 
-  // 6. Touch & Drag & Corner Resize Engine
+  // =========================================================================
+  // 6. 2D HORIZONTAL & VERTICAL RESIZING + MULTI-TOUCH PINCH SCALING
+  // =========================================================================
   const pipHeader = document.getElementById('pip-header');
   const pipClickShield = document.getElementById('pip-click-shield');
   const dragOverlay = document.getElementById('drag-overlay');
-  const resizeHandle = document.getElementById('pip-resize-handle');
+  const resizeHandleSE = document.getElementById('pip-resize-handle');
+  const resizeHandleSW = document.getElementById('pip-resize-sw');
 
   function startDrag(e) {
     if (e.target.closest('button') || e.target.closest('input')) return;
@@ -817,8 +815,8 @@
     const currentDist = Math.hypot(t2.clientX - t1.clientX, t2.clientY - t1.clientY);
     const scale = currentDist / (pinchStart.dist || 1);
 
-    const newWidth = Math.max(180, Math.min(window.innerWidth * 0.95, pinchStart.w * scale));
-    const newHeight = Math.round(newWidth * (9 / 16) + 74);
+    const newWidth = Math.max(160, Math.min(window.innerWidth * 0.96, pinchStart.w * scale));
+    const newHeight = Math.max(90, Math.min(window.innerHeight * 0.92, pinchStart.h * scale));
 
     pipWindow.style.width = newWidth + 'px';
     pipWindow.style.height = newHeight + 'px';
@@ -835,7 +833,10 @@
     pipClickShield.addEventListener('touchstart', startDrag, { passive: false });
   }
 
-  if (resizeHandle) {
+  // 2D Corner Resizer Setup (SE and SW with independent Horizontal & Vertical control)
+  function setup2DResizer(handleEl, direction) {
+    if (!handleEl) return;
+
     const handleResizeStart = (e) => {
       e.stopPropagation();
       if (e.cancelable) e.preventDefault();
@@ -845,20 +846,43 @@
 
       const clientX = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
       const clientY = e.clientY !== undefined ? e.clientY : (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+      const rect = pipWindow.getBoundingClientRect();
 
-      resizeStart.x = clientX;
-      resizeStart.y = clientY;
-      resizeStart.w = pipWindow.offsetWidth;
-      resizeStart.h = pipWindow.offsetHeight;
+      resizeStart = {
+        x: clientX,
+        y: clientY,
+        w: rect.width,
+        h: rect.height,
+        left: rect.left,
+        top: rect.top,
+        dir: direction
+      };
 
       const onResizeMove = (moveEvt) => {
         if (!isResizing) return;
         const curX = moveEvt.clientX !== undefined ? moveEvt.clientX : (moveEvt.touches && moveEvt.touches[0] ? moveEvt.touches[0].clientX : resizeStart.x);
-        const dw = curX - resizeStart.x;
-        const newW = Math.max(180, Math.min(window.innerWidth * 0.95, resizeStart.w + dw));
-        const newH = Math.round(newW * (9 / 16) + 74);
-        pipWindow.style.width = newW + 'px';
-        pipWindow.style.height = newH + 'px';
+        const curY = moveEvt.clientY !== undefined ? moveEvt.clientY : (moveEvt.touches && moveEvt.touches[0] ? moveEvt.touches[0].clientY : resizeStart.y);
+
+        const deltaX = curX - resizeStart.x;
+        const deltaY = curY - resizeStart.y;
+
+        if (resizeStart.dir === 'se') {
+          // Bottom-Right Corner: Drag Right for Width, Drag Down for Height
+          const newW = Math.max(160, Math.min(window.innerWidth * 0.96, resizeStart.w + deltaX));
+          const newH = Math.max(90, Math.min(window.innerHeight * 0.92, resizeStart.h + deltaY));
+          pipWindow.style.width = newW + 'px';
+          pipWindow.style.height = newH + 'px';
+        } else if (resizeStart.dir === 'sw') {
+          // Bottom-Left Corner: Drag Left for Width, Drag Down for Height
+          const newW = Math.max(160, Math.min(window.innerWidth * 0.96, resizeStart.w - deltaX));
+          const newH = Math.max(90, Math.min(window.innerHeight * 0.92, resizeStart.h + deltaY));
+          const newLeft = Math.max(6, Math.min(window.innerWidth - newW - 6, resizeStart.left + deltaX));
+          pipWindow.style.width = newW + 'px';
+          pipWindow.style.height = newH + 'px';
+          pipWindow.style.left = newLeft + 'px';
+          pipWindow.style.right = 'auto';
+        }
+
         if (moveEvt.cancelable) moveEvt.preventDefault();
       };
 
@@ -878,9 +902,12 @@
       window.addEventListener('touchend', onResizeStop);
     };
 
-    resizeHandle.addEventListener('mousedown', handleResizeStart);
-    resizeHandle.addEventListener('touchstart', handleResizeStart, { passive: false });
+    handleEl.addEventListener('mousedown', handleResizeStart);
+    handleEl.addEventListener('touchstart', handleResizeStart, { passive: false });
   }
+
+  setup2DResizer(resizeHandleSE, 'se');
+  setup2DResizer(resizeHandleSW, 'sw');
 
   function revealPiPControls() {
     if (pipWindow) pipWindow.classList.remove('fr-autohide-inactive');

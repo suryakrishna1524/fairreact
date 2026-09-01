@@ -406,10 +406,10 @@ body {
   position: absolute;
   top: 20px;
   right: 20px;
-  width: 440px;
-  height: 290px;
-  min-width: 200px;
-  min-height: 140px;
+  width: 380px;
+  height: 214px;
+  min-width: 160px;
+  min-height: 90px;
   max-width: 96vw;
   max-height: 92vh;
   background: #000000;
@@ -578,6 +578,9 @@ body {
   height: 100%;
   overflow: hidden;
   touch-action: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .fr-pip-stage iframe,
@@ -684,30 +687,43 @@ body {
   cursor: pointer;
 }
 
-/* Resize Grip */
+/* Corner 2D Resize Grips (Horizontal & Vertical) */
 .fr-resize-handle {
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   cursor: se-resize;
   z-index: 60;
   display: flex;
   align-items: flex-end;
   justify-content: flex-end;
-  padding: 4px;
+  padding: 6px;
   touch-action: none;
   transition: opacity 0.2s ease;
 }
 
 .fr-resize-handle::after {
   content: '';
-  width: 10px;
-  height: 10px;
-  border-right: 2px solid #818cf8;
-  border-bottom: 2px solid #818cf8;
-  border-radius: 1px;
+  width: 12px;
+  height: 12px;
+  border-right: 3px solid #818cf8;
+  border-bottom: 3px solid #818cf8;
+  border-radius: 2px;
+}
+
+.fr-resize-sw {
+  right: auto;
+  left: 0;
+  cursor: sw-resize;
+  justify-content: flex-start;
+}
+
+.fr-resize-sw::after {
+  border-right: none;
+  border-left: 3px solid #818cf8;
+  border-bottom: 3px solid #818cf8;
 }
 
 /* Pointer Blocker Overlay during Drag */
@@ -781,9 +797,9 @@ body {
   
   .fr-pip-window {
     width: 240px;
-    height: 165px;
-    min-width: 180px;
-    min-height: 125px;
+    height: 135px;
+    min-width: 160px;
+    min-height: 90px;
     top: 10px;
     right: 10px;
     border-radius: 10px;
