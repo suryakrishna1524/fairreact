@@ -1,6 +1,6 @@
 /**
  * FairReact Universal Web Player App
- * Dual-Lock Barrier Synchronization Engine with Instant Buffer Catch-Up & Zero-Lag Alignment.
+ * High-Performance Dual-Sync Engine with Quality Optimization, Barrier Hold, and Micro-Rate Catch-Up.
  */
 
 (function () {
@@ -13,6 +13,7 @@
   let isOriginalReady = false;
   let isOriginalSeeking = false;
   let lastSeekTimestamp = 0;
+  let lastRateAdjustTimestamp = 0;
 
   let syncWatchdogTimer = null;
   let cinemaAutoHideTimer = null;
@@ -101,7 +102,7 @@
     }
   }
 
-  // 2. DUAL-LOCK LIFECYCLE CONTROLLER WITH INSTANT BUFFER CATCH-UP
+  // 2. ULTRA-SMOOTH DUAL-LOCK LIFECYCLE CONTROLLER
   function handleSyncLifecycle(currentTime) {
     if (!syncEngine || !syncEngine.isActive || !reactorPlayer || !isReactorReady || !originalPlayer || !isOriginalReady) return;
 
@@ -109,7 +110,7 @@
     const reactorState = reactorPlayer.getPlayerState();
     const isReactorPlaying = (reactorState === YT.PlayerState.PLAYING);
 
-    // Rewind Detection: If user rewinds before the end timestamp, reset ended flag
+    // Rewind Detection
     if (target.state === 'PLAYING' || (target.state === 'PRE_START' && target.timeUntilStart <= 3.0) || target.state === 'PAUSED_ZONE') {
       if (isChildEnded && currentTime < childEndedAtReactorTime - 1.0) {
         isChildEnded = false;
@@ -147,14 +148,31 @@
 
       if (isReactorPlaying) {
         const origTime = originalPlayer.getCurrentTime() || 0;
-        const drift = Math.abs(origTime - target.targetTime);
+        const drift = origTime - target.targetTime; // Positive = PiP is ahead, Negative = PiP is behind
+        const absDrift = Math.abs(drift);
 
-        // Drift Auto-Correction: If drift exceeds 0.8s, catch up immediately
-        if (drift > 0.8 && Date.now() - lastSeekTimestamp > 600 && !isOriginalSeeking) {
+        // TIER 1: Hard Drift (> 0.7s) -> Direct Instant Snap
+        if (absDrift > 0.7 && Date.now() - lastSeekTimestamp > 600 && !isOriginalSeeking) {
           lastSeekTimestamp = Date.now();
           isOriginalSeeking = true;
           originalPlayer.seekTo(target.targetTime, true);
-          setTimeout(() => { isOriginalSeeking = false; }, 400);
+          setTimeout(() => { isOriginalSeeking = false; }, 350);
+        } 
+        // TIER 2: Micro-Drift (0.15s - 0.7s) -> Seamless Playback Rate Catch-Up (Zero Buffering Delay!)
+        else if (absDrift > 0.15 && Date.now() - lastRateAdjustTimestamp > 300) {
+          lastRateAdjustTimestamp = Date.now();
+          if (drift < 0) {
+            // PiP is slightly behind: Speed up to 1.15x for a brief moment to catch up smoothly
+            originalPlayer.setPlaybackRate(1.15);
+          } else {
+            // PiP is slightly ahead: Slow down to 0.85x
+            originalPlayer.setPlaybackRate(0.85);
+          }
+        } else if (absDrift <= 0.12) {
+          // Perfectly locked in sync: Restore normal 1.0x rate
+          if (reactorPlayer.getPlaybackRate) {
+            originalPlayer.setPlaybackRate(reactorPlayer.getPlaybackRate() || 1.0);
+          }
         }
 
         const origState = originalPlayer.getPlayerState();
@@ -174,7 +192,7 @@
       showPiP();
       updateStatusBadge('PAUSED_ZONE', target.targetTime);
       const origTime = originalPlayer.getCurrentTime() || 0;
-      if (Math.abs(origTime - target.targetTime) > 0.5 && Date.now() - lastSeekTimestamp > 600) {
+      if (Math.abs(origTime - target.targetTime) > 0.4 && Date.now() - lastSeekTimestamp > 600) {
         lastSeekTimestamp = Date.now();
         originalPlayer.seekTo(target.targetTime, true);
       }
@@ -191,7 +209,7 @@
     }
   }
 
-  // 3. YouTube Players Setup
+  // 3. YouTube Players Setup (With Mobile 720p / 480p Quality Optimization)
   window.onYouTubeIframeAPIReady = function () {
     reactorPlayer = new YT.Player('main-player', {
       videoId: reactionId,
@@ -246,18 +264,26 @@
 
   function onReactorPlayerReady() {
     isReactorReady = true;
+    if (reactorPlayer && typeof reactorPlayer.setPlaybackQuality === 'function') {
+      reactorPlayer.setPlaybackQuality('hd720');
+    }
     checkBothReady();
   }
 
   function onOriginalPlayerReady() {
     isOriginalReady = true;
+    if (originalPlayer && typeof originalPlayer.setPlaybackQuality === 'function') {
+      // Set PiP to lightweight 480p/720p for instant zero-latency loading on mobile
+      originalPlayer.setPlaybackQuality('large');
+    }
     checkBothReady();
   }
 
   function checkBothReady() {
     if (isReactorReady && isOriginalReady) {
       if (syncWatchdogTimer) clearInterval(syncWatchdogTimer);
-      syncWatchdogTimer = setInterval(watchdogSync, 200);
+      // High-Frequency 100ms Ultra-Smooth Watchdog Loop
+      syncWatchdogTimer = setInterval(watchdogSync, 100);
     }
   }
 
@@ -276,7 +302,6 @@
 
       if (originalPlayer && isOriginalReady) {
         if (target.state === 'PLAYING') {
-          // Tell PiP to roll
           if (!isPipMuted) {
             originalPlayer.unMute();
             originalPlayer.setVolume(pipVolume);
@@ -303,14 +328,12 @@
       if (originalPlayer && isOriginalReady) originalPlayer.pauseVideo();
       revealCinemaControls();
     } else if (event.data === YT.PlayerState.BUFFERING) {
-      // If Reactor buffers during playback, pause PiP until Reactor is ready
       if (originalPlayer && isOriginalReady && originalPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
         originalPlayer.pauseVideo();
       }
     }
   }
 
-  // Asymmetric Buffer Resolution: When PiP finishes buffering and starts playing, SNAP to live Reactor frame!
   function onOriginalPlayerStateChange(event) {
     if (event.data === YT.PlayerState.PLAYING) {
       isOriginalSeeking = false;
@@ -322,8 +345,7 @@
           if (target.state === 'PLAYING') {
             const origTime = originalPlayer.getCurrentTime() || 0;
             const drift = Math.abs(origTime - target.targetTime);
-            // If PiP started late due to its buffer delay, snap immediately to live frame!
-            if (drift > 0.4 && Date.now() - lastSeekTimestamp > 500) {
+            if (drift > 0.35 && Date.now() - lastSeekTimestamp > 400) {
               lastSeekTimestamp = Date.now();
               originalPlayer.seekTo(target.targetTime, true);
             }
@@ -335,7 +357,7 @@
     }
   }
 
-  // Active 200ms Watchdog Loop
+  // Active 100ms Watchdog Loop
   function watchdogSync() {
     if (!reactorPlayer || !originalPlayer || !isReactorReady || !isOriginalReady) return;
 
