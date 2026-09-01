@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FairReact - Universal Dual Sync Reaction Player</title>
+  
+  <!-- Google AdSense Verification & Auto-Ads Script -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3037836364890819"
+     crossorigin="anonymous"></script>
+
   <link rel="stylesheet" href="css/player.css">
   <link rel="manifest" href="manifest.json">
   <style>
@@ -58,67 +63,73 @@
       border-radius: 8px;
       padding: 10px 12px;
       color: #f8fafc;
-      font-size: 13px;
+      font-size: 14px;
       outline: none;
+      transition: border-color 0.2s ease;
     }
     .fr-input-landing:focus {
-      border-color: #6366f1;
+      border-color: #818cf8;
     }
     .fr-btn-launch {
-      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      background: linear-gradient(135deg, #6366f1, #ec4899);
       color: white;
       border: none;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 700;
-      padding: 12px;
+      padding: 12px 18px;
       border-radius: 8px;
       cursor: pointer;
-      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
-      transition: all 0.15s ease;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      margin-top: 6px;
     }
     .fr-btn-launch:hover {
-      background: #4f46e5;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
     }
     .fr-features {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      gap: 12px;
       margin-top: 10px;
     }
     .fr-feat-item {
-      background: rgba(255, 255, 255, 0.04);
+      background: rgba(30, 41, 59, 0.5);
       border: 1px solid rgba(255, 255, 255, 0.06);
-      padding: 12px;
       border-radius: 8px;
+      padding: 12px;
       font-size: 12px;
       color: #94a3b8;
     }
     .fr-feat-item strong {
-      color: #f1f5f9;
+      color: #f8fafc;
       display: block;
-      margin-bottom: 3px;
+      margin-bottom: 4px;
+      font-size: 13px;
+    }
+    .fr-landing-ad {
+      margin-top: 10px;
+      text-align: center;
+      min-height: 90px;
+    }
+    @media (max-width: 600px) {
+      .fr-features {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
-  <header class="fr-web-header">
-    <a href="index.html" class="fr-web-brand">
-      <div class="fr-web-logo">FR</div>
-      <span class="fr-web-title">FairReact</span>
-    </a>
-    <div style="font-size: 12px; color: #10b981; font-weight: 700;">● Zero-Install Universal Player</div>
-  </header>
-
   <div class="fr-landing-container">
     <div class="fr-hero">
-      <h1>Dual-Sync Reaction Player</h1>
-      <p>Watch YouTube reaction videos with an automatic, frame-synced floating PiP of the original video directly on iPhone, Android, or PC without installing anything.</p>
+      <h1>FairReact Cinema Player</h1>
+      <p>Watch YouTube reaction videos side-by-side with official original creators in synchronized Picture-in-Picture.</p>
     </div>
 
     <div class="fr-card-landing">
       <div class="fr-form-group">
         <label class="fr-form-label">Reaction Video URL / ID</label>
-        <input type="text" class="fr-input-landing" id="in-reaction" placeholder="e.g. uPlq0RPIr9A" value="uPlq0RPIr9A">
+        <input type="text" class="fr-input-landing" id="in-reaction" placeholder="e.g. uPJq0RPLr9A" value="uPJq0RPLr9A">
       </div>
 
       <div class="fr-form-group">
@@ -128,12 +139,25 @@
 
       <div class="fr-form-group">
         <label class="fr-form-label">FairReact Token or Intro Offset (MM:SS)</label>
-        <input type="text" class="fr-input-landing" id="in-token" placeholder="e.g. v1.NDk6MA== or 00:49" value="v1.NDk6MA==">
+        <input type="text" class="fr-input-landing" id="in-token" placeholder="e.g. v1.NDk6MA== or 00:49" value="v1.NDk6MCwyNzc6MTky">
       </div>
 
       <button class="fr-btn-launch" id="btn-go">
         🚀 Launch Dual Sync Player
       </button>
+    </div>
+
+    <!-- AdSense Landing Banner Slot -->
+    <div class="fr-landing-ad">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-3037836364890819"
+           data-ad-slot="auto"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>
+           (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
     </div>
 
     <div class="fr-features">

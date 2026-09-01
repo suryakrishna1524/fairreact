@@ -205,6 +205,27 @@ body {
   pointer-events: none !important;
 }
 
+/* Google AdSense Non-Intrusive Banner Slot (Normal Mode) */
+.fr-ad-banner-slot {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  max-height: 65px;
+  overflow: hidden;
+  margin-top: 4px;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.4);
+  text-align: center;
+}
+
+/* In Fullscreen mode, automatically hide ad banner to preserve 100% immersive video */
+:fullscreen .fr-ad-banner-slot,
+:-webkit-full-screen .fr-ad-banner-slot {
+  display: none !important;
+}
+
 /* ========================================================
    CRISP VISIBLE RED SCRUBBER / PROGRESS BAR
    ======================================================== */
