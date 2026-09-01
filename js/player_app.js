@@ -1,6 +1,6 @@
 /**
  * FairReact Universal Web Player App
- * Mobile & Android Touch Support: Drag-to-Move, Pinch-to-Zoom, Auto-Hide, and Content-Aware Sync.
+ * Ultra-Smooth Glitch-Free Sync Engine with Zero-Loop Guards and Mobile Autoplay Unlocking.
  */
 
 (function () {
@@ -11,6 +11,11 @@
   let originalPlayer = null;
   let isReactorReady = false;
   let isOriginalReady = false;
+  let isReactorPlaying = false;
+  let isOriginalPlaying = false;
+  let isOriginalSeeking = false;
+  let lastSeekTimestamp = 0;
+
   let syncWatchdogTimer = null;
   let cinemaAutoHideTimer = null;
   let pipAutoHideTimer = null;
@@ -29,7 +34,7 @@
   let pipVolume = 80;
   let isPipMuted = false;
   let currentDockIndex = 0;
-  let currentSizeIndex = 1; // 0=small, 1=medium, 2=large
+  let currentSizeIndex = 1;
 
   const sizePresets = [
     { w: 240, h: 165 },
@@ -37,7 +42,6 @@
     { w: 520, h: 340 }
   ];
 
-  // 1. Parse & Sanitize URL Parameters
   function getUrlParams() {
     const params = new URLSearchParams(window.location.search);
     const rawR = params.get('r') || params.get('reaction') || params.get('v') || 'uPJq0RPLr9A';
@@ -53,7 +57,6 @@
 
   const { reactionId, originalId, token } = getUrlParams();
 
-  // Initialize Sync Engine with token
   syncEngine.originalVideoId = originalId;
   const decodedPoints = FairReactSyncEngine.decodeTimeline(token);
   if (decodedPoints && decodedPoints.length > 0) {
@@ -62,7 +65,6 @@
     syncEngine.isActive = true;
   }
 
-  // 2. Strict DOM PiP Window Controls
   const pipWindow = document.getElementById('pip-window');
 
   function hardClosePiP() {
@@ -76,7 +78,9 @@
     isPipVisible = false;
     if (originalPlayer && isOriginalReady) {
       try {
-        originalPlayer.pauseVideo();
+        if (originalPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+          originalPlayer.pauseVideo();
+        }
       } catch (e) {}
     }
   }
@@ -92,7 +96,6 @@
     isPipVisible = true;
   }
 
-  // 3. Smart Content-Aware State Machine
   function evaluatePiPState(currentTime) {
     if (!syncEngine || !syncEngine.isActive || !syncEngine.segments || syncEngine.segments.length === 0) {
       hardClosePiP();
@@ -109,22 +112,28 @@
     const target = syncEngine.calculateTarget(currentTime);
     const isOriginalContentFinished = (maxOrigEnd !== Infinity && target.targetTime >= maxOrigEnd);
 
-    // ZONE 1: OUTRO / POST-REACTION END / SONG FINISHED
     if (currentTime >= reactionEnd || target.state === 'ENDED' || isOriginalContentFinished) {
       hardClosePiP();
       return;
     }
 
-    // ZONE 2: INTRO / PRE-REACTION (currentTime < reactionStart - 3.0)
     if (currentTime < reactionStart - 3.0) {
       hardClosePiP();
       if (originalPlayer && isOriginalReady) {
-        try { originalPlayer.seekTo(firstSeg.origStart, true); } catch (e) {}
+        try {
+          const origTime = originalPlayer.getCurrentTime() || 0;
+          if (Math.abs(origTime - firstSeg.origStart) > 2.0 && Date.now() - lastSeekTimestamp > 1500) {
+            lastSeekTimestamp = Date.now();
+            originalPlayer.seekTo(firstSeg.origStart, true);
+          }
+          if (originalPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+            originalPlayer.pauseVideo();
+          }
+        } catch (e) {}
       }
       return;
     }
 
-    // ZONE 3: 3-SECOND COUNTDOWN (reactionStart - 3.0 <= currentTime < reactionStart)
     if (currentTime < reactionStart) {
       const timeUntilStart = reactionStart - currentTime;
       hardOpenPiP();
@@ -132,40 +141,54 @@
       const statusText = document.getElementById('pip-status-text');
       if (statusPill) {
         statusPill.className = 'fr-status-pill fr-status-waiting';
-        statusText.textContent = `Starts in ${Math.ceil(timeUntilStart)}s`;
+        statusText.textContent = 'Starts in ' + Math.ceil(timeUntilStart) + 's';
       }
       if (originalPlayer && isOriginalReady) {
         try {
-          originalPlayer.seekTo(firstSeg.origStart, true);
-          originalPlayer.pauseVideo();
+          const origTime = originalPlayer.getCurrentTime() || 0;
+          if (Math.abs(origTime - firstSeg.origStart) > 2.0 && Date.now() - lastSeekTimestamp > 1500) {
+            lastSeekTimestamp = Date.now();
+            originalPlayer.seekTo(firstSeg.origStart, true);
+          }
+          if (originalPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+            originalPlayer.pauseVideo();
+          }
         } catch (e) {}
       }
       return;
     }
 
-    // ZONE 4: ACTIVE REACTION (reactionStart <= currentTime < reactionEnd)
     if (target.state === 'PLAYING') {
       hardOpenPiP();
       const statusPill = document.getElementById('pip-status-pill');
       const statusText = document.getElementById('pip-status-text');
       if (statusPill) {
         statusPill.className = 'fr-status-pill fr-status-sync';
-        statusText.textContent = `Synced (${FairReactSyncEngine.formatSeconds(target.targetTime)})`;
+        statusText.textContent = 'Synced (' + FairReactSyncEngine.formatSeconds(target.targetTime) + ')';
       }
 
       if (originalPlayer && isOriginalReady) {
         const reactorState = reactorPlayer ? reactorPlayer.getPlayerState() : -1;
+        const origState = originalPlayer.getPlayerState();
+
         if (reactorState === YT.PlayerState.PLAYING) {
           const origTime = originalPlayer.getCurrentTime() || 0;
           const drift = Math.abs(origTime - target.targetTime);
-          if (drift > 1.5) {
+
+          if (drift > 2.0 && Date.now() - lastSeekTimestamp > 1500 && !isOriginalSeeking) {
+            lastSeekTimestamp = Date.now();
+            isOriginalSeeking = true;
             originalPlayer.seekTo(target.targetTime, true);
+            setTimeout(() => { isOriginalSeeking = false; }, 800);
           }
-          if (originalPlayer.getPlayerState() !== YT.PlayerState.PLAYING) {
+
+          if (origState === YT.PlayerState.PAUSED || origState === YT.PlayerState.CUED || origState === -1) {
             originalPlayer.playVideo();
           }
-        } else {
-          originalPlayer.pauseVideo();
+        } else if (reactorState === YT.PlayerState.PAUSED) {
+          if (origState === YT.PlayerState.PLAYING || origState === YT.PlayerState.BUFFERING) {
+            originalPlayer.pauseVideo();
+          }
         }
       }
     } else if (target.state === 'PAUSED_ZONE') {
@@ -177,15 +200,21 @@
         statusText.textContent = 'Reactor Commentary';
       }
       if (originalPlayer && isOriginalReady) {
-        originalPlayer.seekTo(target.targetTime, true);
-        originalPlayer.pauseVideo();
+        const origState = originalPlayer.getPlayerState();
+        if (origState === YT.PlayerState.PLAYING) {
+          originalPlayer.pauseVideo();
+        }
+        const origTime = originalPlayer.getCurrentTime() || 0;
+        if (Math.abs(origTime - target.targetTime) > 2.0 && Date.now() - lastSeekTimestamp > 1500) {
+          lastSeekTimestamp = Date.now();
+          originalPlayer.seekTo(target.targetTime, true);
+        }
       }
     } else {
       hardClosePiP();
     }
   }
 
-  // 4. Load YouTube IFrame Player API
   window.onYouTubeIframeAPIReady = function () {
     reactorPlayer = new YT.Player('main-player', {
       videoId: reactionId,
@@ -224,7 +253,8 @@
         iv_load_policy: 3
       },
       events: {
-        onReady: onOriginalPlayerReady
+        onReady: onOriginalPlayerReady,
+        onStateChange: onOriginalPlayerStateChange
       }
     });
   };
@@ -250,34 +280,53 @@
   function checkBothReady() {
     if (isReactorReady && isOriginalReady) {
       if (syncWatchdogTimer) clearInterval(syncWatchdogTimer);
-      syncWatchdogTimer = setInterval(syncLoop, 200);
+      syncWatchdogTimer = setInterval(syncLoop, 250);
     }
   }
 
   function onReactorPlayerStateChange(event) {
     const playBtn = document.getElementById('btn-cinema-play');
-    if (!originalPlayer || !isOriginalReady) return;
-
-    const curTime = reactorPlayer.getCurrentTime() || 0;
-    evaluatePiPState(curTime);
 
     if (event.data === YT.PlayerState.PLAYING) {
+      isReactorPlaying = true;
       if (playBtn) playBtn.textContent = '⏸';
       startCinemaAutoHide();
       startPiPAutoHide();
+      if (originalPlayer && isOriginalReady) {
+        const curTime = reactorPlayer.getCurrentTime() || 0;
+        evaluatePiPState(curTime);
+      }
     } else if (event.data === YT.PlayerState.PAUSED) {
+      isReactorPlaying = false;
       if (playBtn) playBtn.textContent = '▶';
-      originalPlayer.pauseVideo();
+      if (originalPlayer && isOriginalReady) {
+        originalPlayer.pauseVideo();
+      }
       revealCinemaControls();
       revealPiPControls();
     } else if (event.data === YT.PlayerState.ENDED) {
+      isReactorPlaying = false;
       if (playBtn) playBtn.textContent = '▶';
       hardClosePiP();
       revealCinemaControls();
+    } else if (event.data === YT.PlayerState.BUFFERING) {
+      if (originalPlayer && isOriginalReady && originalPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+        originalPlayer.pauseVideo();
+      }
     }
   }
 
-  // Active Sync & UI Watchdog Loop (Runs every 200ms)
+  function onOriginalPlayerStateChange(event) {
+    if (event.data === YT.PlayerState.PLAYING) {
+      isOriginalPlaying = true;
+      isOriginalSeeking = false;
+    } else if (event.data === YT.PlayerState.PAUSED) {
+      isOriginalPlaying = false;
+    } else if (event.data === YT.PlayerState.BUFFERING) {
+      isOriginalPlaying = false;
+    }
+  }
+
   function syncLoop() {
     if (!reactorPlayer || !originalPlayer || !isReactorReady || !isOriginalReady) return;
 
@@ -291,7 +340,6 @@
       loadedFraction = reactorPlayer.getVideoLoadedFraction() || 0;
     } catch (e) { return; }
 
-    // Update Scrubber Progress & Time Display
     if (!isScrubbing && duration > 0) {
       const pct = (curTime / duration) * 100;
       const progressFill = document.getElementById('main-progress-fill');
@@ -299,20 +347,59 @@
       const bufferedFill = document.getElementById('main-buffered');
       const timeDisplay = document.getElementById('cinema-time-txt');
 
-      if (progressFill) progressFill.style.width = `${pct}%`;
-      if (progressThumb) progressThumb.style.left = `${pct}%`;
-      if (bufferedFill) bufferedFill.style.width = `${loadedFraction * 100}%`;
+      if (progressFill) progressFill.style.width = pct + '%';
+      if (progressThumb) progressThumb.style.left = pct + '%';
+      if (bufferedFill) bufferedFill.style.width = (loadedFraction * 100) + '%';
       if (timeDisplay) {
-        timeDisplay.textContent = `${FairReactSyncEngine.formatSeconds(curTime)} / ${FairReactSyncEngine.formatSeconds(duration)}`;
+        timeDisplay.textContent = FairReactSyncEngine.formatSeconds(curTime) + ' / ' + FairReactSyncEngine.formatSeconds(duration);
       }
     }
 
     evaluatePiPState(curTime);
   }
 
-  // ==========================================
-  // 5. Tap & Double-Tap Gestures (Mobile/Desktop)
-  // ==========================================
+  const viewport = document.getElementById('fr-viewport');
+  const scrubberTrack = document.getElementById('main-scrubber');
+  const btnCinemaPlay = document.getElementById('btn-cinema-play');
+  const btnCinemaMute = document.getElementById('btn-cinema-mute');
+  const cinemaVolSlider = document.getElementById('cinema-vol-slider');
+  const btnCinemaSpeed = document.getElementById('btn-cinema-speed');
+  const menuSpeed = document.getElementById('menu-speed');
+  const btnCinemaQuality = document.getElementById('btn-cinema-quality');
+  const menuQuality = document.getElementById('menu-quality');
+  const btnCinemaCC = document.getElementById('btn-cinema-cc');
+  const btnCinemaFullscreen = document.getElementById('btn-cinema-fullscreen');
+
+  function togglePlayPause() {
+    if (!reactorPlayer || !isReactorReady) return;
+    try {
+      const state = reactorPlayer.getPlayerState();
+      if (state === YT.PlayerState.PLAYING || state === YT.PlayerState.BUFFERING) {
+        reactorPlayer.pauseVideo();
+        if (originalPlayer && isOriginalReady) originalPlayer.pauseVideo();
+        if (btnCinemaPlay) btnCinemaPlay.textContent = '▶';
+      } else {
+        reactorPlayer.playVideo();
+        if (btnCinemaPlay) btnCinemaPlay.textContent = '⏸';
+      }
+    } catch (e) {
+      reactorPlayer.playVideo();
+    }
+    revealCinemaControls();
+  }
+
+  if (btnCinemaPlay) {
+    btnCinemaPlay.addEventListener('click', (e) => {
+      e.stopPropagation();
+      togglePlayPause();
+    });
+    btnCinemaPlay.addEventListener('touchend', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      togglePlayPause();
+    });
+  }
+
   const tapShield = document.getElementById('video-tap-shield');
   let lastTapTime = 0;
   let singleTapTimeout = null;
@@ -333,6 +420,7 @@
         if (reactorPlayer) {
           const curTime = reactorPlayer.getCurrentTime() || 0;
           const seekTime = Math.max(0, curTime - 10);
+          lastSeekTimestamp = Date.now();
           reactorPlayer.seekTo(seekTime, true);
           evaluatePiPState(seekTime);
         }
@@ -340,6 +428,7 @@
         if (reactorPlayer) {
           const curTime = reactorPlayer.getCurrentTime() || 0;
           const seekTime = curTime + 10;
+          lastSeekTimestamp = Date.now();
           reactorPlayer.seekTo(seekTime, true);
           evaluatePiPState(seekTime);
         }
@@ -356,7 +445,7 @@
         } else {
           togglePlayPause();
         }
-      }, 300);
+      }, 280);
     }
   }
 
@@ -364,43 +453,10 @@
     tapShield.addEventListener('click', handleTapShield);
   }
 
-  // ==========================================
-  // 6. Custom Cinema Controls Interaction
-  // ==========================================
-  const viewport = document.getElementById('fr-viewport');
-  const scrubberTrack = document.getElementById('main-scrubber');
-  const btnCinemaPlay = document.getElementById('btn-cinema-play');
-  const btnCinemaMute = document.getElementById('btn-cinema-mute');
-  const cinemaVolSlider = document.getElementById('cinema-vol-slider');
-  const btnCinemaSpeed = document.getElementById('btn-cinema-speed');
-  const menuSpeed = document.getElementById('menu-speed');
-  const btnCinemaQuality = document.getElementById('btn-cinema-quality');
-  const menuQuality = document.getElementById('menu-quality');
-  const btnCinemaCC = document.getElementById('btn-cinema-cc');
-  const btnCinemaFullscreen = document.getElementById('btn-cinema-fullscreen');
-
-  if (btnCinemaPlay) {
-    btnCinemaPlay.onclick = (e) => {
-      e.stopPropagation();
-      togglePlayPause();
-    };
-  }
-
-  function togglePlayPause() {
-    if (!reactorPlayer || !isReactorReady) return;
-    const state = reactorPlayer.getPlayerState();
-    if (state === YT.PlayerState.PLAYING) {
-      reactorPlayer.pauseVideo();
-    } else {
-      reactorPlayer.playVideo();
-    }
-    revealCinemaControls();
-  }
-
   function seekToScrubberPosition(e) {
     if (!reactorPlayer || !isReactorReady) return;
     const rect = scrubberTrack.getBoundingClientRect();
-    const clientX = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    const clientX = e.clientX !== undefined ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : (e.changedTouches && e.changedTouches[0] ? e.changedTouches[0].clientX : 0));
     const clickX = Math.max(0, Math.min(rect.width, clientX - rect.left));
     const pct = clickX / rect.width;
     const duration = reactorPlayer.getDuration() || 0;
@@ -408,9 +464,10 @@
 
     const progressFill = document.getElementById('main-progress-fill');
     const progressThumb = document.getElementById('main-progress-thumb');
-    if (progressFill) progressFill.style.width = `${pct * 100}%`;
-    if (progressThumb) progressThumb.style.left = `${pct * 100}%`;
+    if (progressFill) progressFill.style.width = (pct * 100) + '%';
+    if (progressThumb) progressThumb.style.left = (pct * 100) + '%';
 
+    lastSeekTimestamp = Date.now();
     reactorPlayer.seekTo(seekTime, true);
     evaluatePiPState(seekTime);
   }
@@ -451,11 +508,11 @@
 
     scrubberTrack.addEventListener('touchend', () => {
       isScrubbing = false;
+      seekToScrubberPosition(e);
       startCinemaAutoHide();
     });
   }
 
-  // Volume & Quality controls
   if (cinemaVolSlider) {
     cinemaVolSlider.oninput = (e) => {
       reactorVolume = parseInt(e.target.value, 10);
@@ -499,7 +556,7 @@
         const speed = parseFloat(item.dataset.speed);
         if (reactorPlayer) reactorPlayer.setPlaybackRate(speed);
         if (originalPlayer) originalPlayer.setPlaybackRate(speed);
-        btnCinemaSpeed.textContent = `${speed}x`;
+        btnCinemaSpeed.textContent = speed + 'x';
         menuSpeed.querySelectorAll('.fr-menu-item').forEach(el => el.classList.remove('active'));
         item.classList.add('active');
         menuSpeed.classList.remove('show');
@@ -606,6 +663,7 @@
       if (reactorPlayer) {
         const curTime = reactorPlayer.getCurrentTime() || 0;
         const seekTime = Math.max(0, curTime - 5);
+        lastSeekTimestamp = Date.now();
         reactorPlayer.seekTo(seekTime, true);
         evaluatePiPState(seekTime);
       }
@@ -614,15 +672,13 @@
       if (reactorPlayer) {
         const curTime = reactorPlayer.getCurrentTime() || 0;
         const seekTime = curTime + 5;
+        lastSeekTimestamp = Date.now();
         reactorPlayer.seekTo(seekTime, true);
         evaluatePiPState(seekTime);
       }
     }
   });
 
-  // =========================================================
-  // 7. Touch-Drag & Pinch-to-Zoom Engine (Android Mobile Ready)
-  // =========================================================
   const pipHeader = document.getElementById('pip-header');
   const pipClickShield = document.getElementById('pip-click-shield');
   const dragOverlay = document.getElementById('drag-overlay');
@@ -673,8 +729,8 @@
     x = Math.max(6, Math.min(x, maxX));
     y = Math.max(6, Math.min(y, maxY));
 
-    pipWindow.style.left = `${x}px`;
-    pipWindow.style.top = `${y}px`;
+    pipWindow.style.left = x + 'px';
+    pipWindow.style.top = y + 'px';
     pipWindow.style.right = 'auto';
     pipWindow.style.bottom = 'auto';
 
@@ -697,7 +753,6 @@
     startPiPAutoHide();
   }
 
-  // Pinch-to-Zoom Resizing for Mobile/Touch
   function startPinch(e) {
     isDragging = false;
     isPinching = true;
@@ -719,8 +774,8 @@
     const newWidth = Math.max(180, Math.min(window.innerWidth * 0.95, pinchStart.w * scale));
     const newHeight = Math.round(newWidth * (9 / 16) + 74);
 
-    pipWindow.style.width = `${newWidth}px`;
-    pipWindow.style.height = `${newHeight}px`;
+    pipWindow.style.width = newWidth + 'px';
+    pipWindow.style.height = newHeight + 'px';
     if (e.cancelable) e.preventDefault();
   }
 
@@ -734,7 +789,6 @@
     pipClickShield.addEventListener('touchstart', startDrag, { passive: false });
   }
 
-  // Corner Drag Resizing
   if (resizeHandle) {
     const handleResizeStart = (e) => {
       e.stopPropagation();
@@ -757,8 +811,8 @@
         const dw = curX - resizeStart.x;
         const newW = Math.max(180, Math.min(window.innerWidth * 0.95, resizeStart.w + dw));
         const newH = Math.round(newW * (9 / 16) + 74);
-        pipWindow.style.width = `${newW}px`;
-        pipWindow.style.height = `${newH}px`;
+        pipWindow.style.width = newW + 'px';
+        pipWindow.style.height = newH + 'px';
         if (moveEvt.cancelable) moveEvt.preventDefault();
       };
 
@@ -782,7 +836,6 @@
     resizeHandle.addEventListener('touchstart', handleResizeStart, { passive: false });
   }
 
-  // PiP Controls Auto-Hide
   function revealPiPControls() {
     if (pipWindow) pipWindow.classList.remove('fr-autohide-inactive');
     startPiPAutoHide();
@@ -807,7 +860,6 @@
     pipWindow.addEventListener('touchstart', revealPiPControls, { passive: true });
   }
 
-  // Docking Presets
   const btnDock = document.getElementById('btn-pip-dock');
   if (btnDock) {
     const dockPositions = [
@@ -828,32 +880,30 @@
     };
   }
 
-  // Sizing Presets
   const btnSize = document.getElementById('btn-pip-size');
   if (btnSize) {
     btnSize.onclick = () => {
       currentSizeIndex = (currentSizeIndex + 1) % sizePresets.length;
       const preset = sizePresets[currentSizeIndex];
-      pipWindow.style.width = `${preset.w}px`;
-      pipWindow.style.height = `${preset.h}px`;
+      pipWindow.style.width = preset.w + 'px';
+      pipWindow.style.height = preset.h + 'px';
       revealPiPControls();
     };
   }
 
-  // Re-sync Frame
   const btnReload = document.getElementById('btn-pip-reload');
   if (btnReload) {
     btnReload.onclick = () => {
       if (!reactorPlayer || !originalPlayer) return;
       const curTime = reactorPlayer.getCurrentTime() || 0;
       const target = syncEngine.calculateTarget(curTime);
+      lastSeekTimestamp = Date.now();
       originalPlayer.seekTo(target.targetTime, true);
       evaluatePiPState(curTime);
       revealPiPControls();
     };
   }
 
-  // Toggle Hide / Show PiP
   const btnTogglePiP = document.getElementById('btn-pip-toggle');
   if (btnTogglePiP) {
     btnTogglePiP.onclick = () => {
@@ -867,7 +917,6 @@
     };
   }
 
-  // PiP Drift Fine-Tuning
   document.getElementById('btn-m5').onclick = () => adjustOffset(-5);
   document.getElementById('btn-m1').onclick = () => adjustOffset(-1);
   document.getElementById('btn-p1').onclick = () => adjustOffset(1);
@@ -882,6 +931,7 @@
     updateOffsetDisplay(newOffset);
     const curTime = reactorPlayer ? reactorPlayer.getCurrentTime() || 0 : 0;
     const target = syncEngine.calculateTarget(curTime);
+    lastSeekTimestamp = Date.now();
     if (originalPlayer) originalPlayer.seekTo(target.targetTime, true);
     revealPiPControls();
   }
@@ -890,11 +940,10 @@
     const offsetEl = document.getElementById('pip-offset-txt');
     if (offsetEl) {
       const sign = val > 0 ? '+' : '';
-      offsetEl.textContent = `${sign}${newOffset.toFixed(1)}s`;
+      offsetEl.textContent = sign + val.toFixed(1) + 's';
     }
   }
 
-  // PiP Volume & Mute Controls
   const pipVolSlider = document.getElementById('pip-vol-slider');
   const btnPipMute = document.getElementById('btn-pip-mute');
 
