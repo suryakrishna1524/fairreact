@@ -60,7 +60,7 @@ class FairReactSyncEngine {
     if (!cleanPoints || cleanPoints.length === 0) return '';
 
     const csvParts = cleanPoints.map(p => {
-      const r = Math.round(p.reactTime);
+      const r = Math.round(p.reactTime || 0);
       if (p.isPause) {
         return `${r}:p`;
       } else {
@@ -74,66 +74,43 @@ class FairReactSyncEngine {
     return `v1.${b64}`;
   }
 
+  static optimizeTimeline(points) {
+    return FairReactSyncEngine.cleanRecordedTimeline(points);
+  }
+
+  /**
+   * Clean and normalize recorded timeline points
+   */
   static cleanRecordedTimeline(points) {
     if (!points || points.length === 0) return [];
 
-    const firstPt = points[0];
-    const initialReactTime = firstPt.reactTime || 0;
-    const initialOrigTime = firstPt.origTime || 0;
-    const filtered = [{ reactTime: initialReactTime, origTime: initialOrigTime, isPause: false }];
+    // Sort by reaction time
+    const sorted = [...points].sort((a, b) => (a.reactTime || 0) - (b.reactTime || 0));
+    const result = [];
 
-    for (let i = 1; i < points.length; i++) {
-      const pt = points[i];
-      if (pt.reactTime <= initialReactTime + 3 && pt.origTime <= initialOrigTime + 1) {
-        continue;
-      }
-      if (pt.isPause && i < points.length - 1) {
-        const next = points[i + 1];
-        if (!next.isPause && (next.reactTime - pt.reactTime < 1.5)) {
-          i++;
+    for (let i = 0; i < sorted.length; i++) {
+      const pt = sorted[i];
+      const r = Math.round(pt.reactTime || 0);
+      const o = pt.isPause ? null : Math.round(pt.origTime || 0);
+      const isPause = !!pt.isPause;
+
+      const prev = result[result.length - 1];
+      if (prev) {
+        // If two events happen at the exact same second, replace with the newest state
+        if (prev.reactTime === r) {
+          result[result.length - 1] = { reactTime: r, origTime: o, isPause };
           continue;
         }
-      }
-      filtered.push(pt);
-    }
-
-    if (filtered.length >= 2) {
-      const lastPt = filtered[filtered.length - 1];
-      const secondLast = filtered[filtered.length - 2];
-      if (secondLast.isPause && (lastPt.reactTime - secondLast.reactTime <= 3.0)) {
-        filtered.splice(filtered.length - 2, 1);
-      }
-    }
-
-    const finalPoints = [];
-    for (let i = 0; i < filtered.length; i++) {
-      const pt = filtered[i];
-      const prev = finalPoints[finalPoints.length - 1];
-
-      if (!prev) {
-        finalPoints.push(pt);
-        continue;
-      }
-
-      if (i === filtered.length - 1 && finalPoints.length === 1 && !pt.isPause && !prev.isPause) {
-        const reactDelta = pt.reactTime - prev.reactTime;
-        const origDelta = pt.origTime - prev.origTime;
-        if (Math.abs(reactDelta - origDelta) <= 2.0) {
+        // If consecutive identical pause states, skip
+        if (prev.isPause && isPause) {
           continue;
         }
       }
 
-      const reactDelta = pt.reactTime - prev.reactTime;
-      const origDelta = pt.origTime - prev.origTime;
-
-      if (!pt.isPause && !prev.isPause && Math.abs(reactDelta - origDelta) <= 1.5 && i < filtered.length - 1) {
-        continue;
-      }
-
-      finalPoints.push(pt);
+      result.push({ reactTime: r, origTime: o, isPause });
     }
 
-    return finalPoints;
+    return result;
   }
 
   static parseTimeToSeconds(timeStr) {
@@ -213,7 +190,6 @@ class FairReactSyncEngine {
       }
     }
 
-    // Scan all YouTube URLs in the description if not found yet
     if (!this.originalVideoId) {
       const urlRegex = /(https?:\/\/(?:www\.|m\.)?(?:youtube\.com\/(?:watch\?[^\s\)\"\[]+|shorts\/[a-zA-Z0-9_-]{11})|youtu\.be\/[a-zA-Z0-9_-]{11}[^\s\)\"\[]*))/gi;
       let urlMatch;
@@ -232,7 +208,6 @@ class FairReactSyncEngine {
       return false;
     }
 
-    // If token is found, decode it
     if (tokenMatch) {
       const token = tokenMatch[1];
       const points = FairReactSyncEngine.decodeTimeline(token);
@@ -244,7 +219,7 @@ class FairReactSyncEngine {
       }
     }
 
-    // 3. Fallback: Parse human-readable timestamps in description (e.g. "01:25 = 00:00")
+    // 3. Fallback: Human-readable timestamp parsing
     const lines = text.split(/\r?\n/);
     const parsedPoints = [];
     const dualTimeRegex = /(?:react(?:ion)?\s*)?(\d{1,2}:\d{2}(?::\d{2})?)\s*(?:=|->|:|to|-)\s*(?:orig(?:inal)?\s*)?(\d{1,2}:\d{2}(?::\d{2})?)/i;
@@ -305,7 +280,7 @@ class FairReactSyncEngine {
     if (points.length === 1) {
       const pt = points[0];
       this.segments.push({
-        reactStart: pt.reactTime,
+        reactStart: pt.reactTime || 0,
         origStart: pt.origTime || 0,
         reactEnd: Infinity,
         origEnd: Infinity,
