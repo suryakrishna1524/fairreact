@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Contact Us - FairReact</title>
+  
+  <!-- Favicon / Tab Icon -->
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="apple-touch-icon" href="favicon-192.png">
+
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3037836364890819" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="css/player.css">
   <style>
@@ -101,7 +107,7 @@
       padding: 20px;
     }
     .fr-contact-box h3 {
-      font-size: 16px;
+      font-size: 15px;
       color: #818cf8;
       margin-bottom: 6px;
     }
@@ -110,6 +116,7 @@
       text-decoration: none;
       font-weight: 600;
       font-size: 14px;
+      word-break: break-all;
     }
     .fr-form-contact {
       display: flex;
@@ -150,6 +157,22 @@
       border-radius: 8px;
       cursor: pointer;
       margin-top: 8px;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .fr-btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.5);
+    }
+    .fr-success-alert {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid #10b981;
+      color: #34d399;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      display: none;
     }
     .fr-footer {
       border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -164,6 +187,7 @@
       justify-content: center;
       gap: 20px;
       margin-bottom: 12px;
+      flex-wrap: wrap;
     }
     .fr-footer-links a {
       color: #94a3b8;
@@ -195,34 +219,48 @@
 
   <main class="fr-content-container">
     <div class="fr-card-contact">
+      <div class="fr-success-alert" id="success-alert">
+        ✓ Thank you! Your message has been sent successfully. We will get back to you shortly.
+      </div>
+
       <h1>Contact Us</h1>
-      <p>Have questions about FairReact, creator integration, or technical support? We're here to help!</p>
+      <p>Have questions about FairReact, creator integration, or technical support? Reach out directly and we will get back to you!</p>
 
       <div class="fr-contact-grid">
         <div class="fr-contact-box">
-          <h3>📧 Support Email</h3>
-          <p style="font-size: 13px; margin-bottom: 6px; color:#94a3b8;">For general inquiries & support:</p>
-          <a href="mailto:support@fairreact.org">support@fairreact.org</a>
+          <h3>📧 Official Contact Email</h3>
+          <p style="font-size: 13px; margin-bottom: 6px; color:#94a3b8;">Direct developer & support:</p>
+          <a href="mailto:suryakrishna1524@gmail.com">suryakrishna1524@gmail.com</a>
         </div>
         <div class="fr-contact-box">
-          <h3>⚡ Developer Support</h3>
-          <p style="font-size: 13px; margin-bottom: 6px; color:#94a3b8;">API & extension inquiries:</p>
-          <a href="mailto:dev@fairreact.org">dev@fairreact.org</a>
+          <h3>👤 Project Maintainer</h3>
+          <p style="font-size: 13px; margin-bottom: 6px; color:#94a3b8;">Lead Developer:</p>
+          <span style="color: #f8fafc; font-weight: 700; font-size: 14px;">Surya Krishna</span>
+          <div style="font-size: 12px; color: #64748b; margin-top: 4px;">India • Global Creator Support</div>
         </div>
       </div>
 
-      <form class="fr-form-contact" onsubmit="event.preventDefault(); alert('Thank you for reaching out! We will get back to you shortly.'); this.reset();">
+      <form class="fr-form-contact" action="https://formsubmit.co/suryakrishna1524@gmail.com" method="POST">
+        <!-- FormSubmit configuration -->
+        <input type="hidden" name="_subject" value="New FairReact Website Contact Message">
+        <input type="hidden" name="_captcha" value="false">
+        <input type="hidden" name="_next" value="https://fairreact-webplayer.vercel.app/contact.html?sent=true">
+
         <div class="fr-input-group">
           <label>Your Name</label>
-          <input type="text" class="fr-input-contact" placeholder="John Doe" required>
+          <input type="text" name="name" class="fr-input-contact" placeholder="Enter your name" required>
         </div>
         <div class="fr-input-group">
           <label>Your Email Address</label>
-          <input type="email" class="fr-input-contact" placeholder="john@example.com" required>
+          <input type="email" name="email" class="fr-input-contact" placeholder="yourname@gmail.com" required>
+        </div>
+        <div class="fr-input-group">
+          <label>Subject / Topic</label>
+          <input type="text" name="subject" class="fr-input-contact" placeholder="e.g. Creator Inquiry / Technical Feedback" required>
         </div>
         <div class="fr-input-group">
           <label>Message</label>
-          <textarea class="fr-input-contact" rows="4" placeholder="How can we assist you?" required></textarea>
+          <textarea name="message" class="fr-input-contact" rows="4" placeholder="How can we assist you?" required></textarea>
         </div>
         <button type="submit" class="fr-btn-submit">Send Message</button>
       </form>
@@ -239,5 +277,11 @@
     </div>
     <div>&copy; 2026 FairReact. All rights reserved. Universal Dual Reaction Sync Player.</div>
   </footer>
+
+  <script>
+    if (window.location.search.includes('sent=true')) {
+      document.getElementById('success-alert').style.display = 'block';
+    }
+  </script>
 </body>
 </html>
