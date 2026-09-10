@@ -107,6 +107,34 @@ html.fr-cinema-html, body.fr-cinema-body {
   touch-action: manipulation;
 }
 
+/* Fullscreen Cinema Isolation (Zero Distraction Mode) */
+:fullscreen .fr-nav-header,
+:-webkit-full-screen .fr-nav-header,
+body.fr-cinema-fullscreen .fr-nav-header,
+:fullscreen .fr-watch-info-section,
+:-webkit-full-screen .fr-watch-info-section,
+body.fr-cinema-fullscreen .fr-watch-info-section,
+:fullscreen .fr-footer,
+:-webkit-full-screen .fr-footer,
+body.fr-cinema-fullscreen .fr-footer {
+  display: none !important;
+}
+
+:fullscreen .fr-viewport,
+:-webkit-full-screen .fr-viewport,
+body.fr-cinema-fullscreen .fr-viewport {
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 999999 !important;
+}
+
+body.fr-cinema-fullscreen {
+  overflow: hidden !important;
+}
+
 body {
   display: flex;
   flex-direction: column;

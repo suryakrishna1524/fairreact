@@ -663,10 +663,19 @@
   });
 
   function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
+    const vp = document.getElementById('fr-viewport') || document.documentElement;
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      if (vp.requestFullscreen) {
+        vp.requestFullscreen().catch(() => {});
+      } else if (vp.webkitRequestFullscreen) {
+        vp.webkitRequestFullscreen();
+      }
     } else {
-      document.exitFullscreen().catch(() => {});
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      }
     }
   }
 
@@ -678,7 +687,13 @@
   }
 
   document.addEventListener('fullscreenchange', () => {
-    const isFs = !!document.fullscreenElement;
+    const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    document.body.classList.toggle('fr-cinema-fullscreen', isFs);
+    if (btnCinemaFullscreen) btnCinemaFullscreen.textContent = isFs ? '✕' : '⛶';
+  });
+  document.addEventListener('webkitfullscreenchange', () => {
+    const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    document.body.classList.toggle('fr-cinema-fullscreen', isFs);
     if (btnCinemaFullscreen) btnCinemaFullscreen.textContent = isFs ? '✕' : '⛶';
   });
 
