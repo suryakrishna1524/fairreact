@@ -36,7 +36,17 @@
       <a href="about.html">About Us</a>
       <a href="contact.html">Contact Us</a>
       <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html">Terms of Service</a>
     </nav>
+    <button class="fr-nav-toggle" id="fr-nav-toggle" aria-label="Toggle navigation menu">☰</button>
+    <div class="fr-mobile-menu" id="fr-mobile-menu">
+      <a href="index.html">🏠 Home</a>
+      <a href="guides/index.html">📚 Guides & Knowledge Base</a>
+      <a href="about.html">ℹ️ About Us</a>
+      <a href="contact.html">✉️ Contact Us</a>
+      <a href="privacy.html">🔒 Privacy Policy</a>
+      <a href="terms.html">📜 Terms of Service</a>
+    </div>
   </header>
 
   <!-- Drag Blocker Overlay -->
@@ -268,6 +278,7 @@
 
   <script src="js/sync_engine.js?v=2.9.0"></script>
   <script src="js/player_app.js?v=2.9.0"></script>
+  <script src="js/nav.js"></script>
   <script>
     // Dynamically update YouTube attribution links from URL query parameters
     const params = new URLSearchParams(window.location.search);

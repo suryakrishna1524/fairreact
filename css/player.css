@@ -24,8 +24,8 @@ html, body {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   position: sticky;
   top: 0;
-  z-index: 100;
-  padding: 12px 24px;
+  z-index: 1000;
+  padding: 12px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -60,7 +60,7 @@ html, body {
 .fr-nav-links {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 .fr-nav-links a {
@@ -71,6 +71,7 @@ html, body {
   padding: 6px 12px;
   border-radius: 8px;
   transition: all 0.18s ease;
+  white-space: nowrap;
 }
 
 .fr-nav-links a:hover {
@@ -83,16 +84,72 @@ html, body {
   background: rgba(129, 140, 248, 0.12);
 }
 
-@media (max-width: 650px) {
-  .fr-nav-header {
-    padding: 10px 16px;
-  }
+/* Mobile Hamburger Toggle Button */
+.fr-nav-toggle {
+  display: none;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+  font-size: 18px;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.fr-nav-toggle:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Mobile Dropdown Menu */
+.fr-mobile-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: rgba(15, 23, 42, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 16px 20px;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+  z-index: 999;
+}
+
+.fr-mobile-menu.show {
+  display: flex !important;
+}
+
+.fr-mobile-menu a {
+  color: #cbd5e1;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.15s ease;
+}
+
+.fr-mobile-menu a:hover, .fr-mobile-menu a.active {
+  color: #818cf8;
+  background: rgba(129, 140, 248, 0.15);
+}
+
+@media (max-width: 768px) {
   .fr-nav-links {
-    gap: 6px;
+    display: none !important;
   }
-  .fr-nav-links a {
-    font-size: 12px;
-    padding: 4px 6px;
+  .fr-nav-toggle {
+    display: flex !important;
   }
 }
 

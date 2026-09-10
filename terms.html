@@ -21,53 +21,6 @@
       margin: 0;
       padding: 0;
     }
-    .fr-nav-header {
-      background: rgba(15, 23, 42, 0.9);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      padding: 14px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .fr-brand-link {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-      color: white;
-      font-weight: 800;
-      font-size: 18px;
-    }
-    .fr-logo-chip {
-      width: 32px;
-      height: 32px;
-      background: linear-gradient(135deg, #6366f1, #ec4899);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: 900;
-      color: white;
-    }
-    .fr-nav-links {
-      display: flex;
-      gap: 18px;
-    }
-    .fr-nav-links a {
-      color: #94a3b8;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 600;
-      transition: color 0.15s ease;
-    }
-    .fr-nav-links a:hover, .fr-nav-links a.active {
-      color: #818cf8;
-    }
     .fr-legal-container {
       max-width: 800px;
       margin: 40px auto 80px auto;
@@ -142,7 +95,17 @@
       <a href="about.html">About Us</a>
       <a href="contact.html">Contact Us</a>
       <a href="privacy.html">Privacy Policy</a>
+      <a href="terms.html" class="active">Terms of Service</a>
     </nav>
+    <button class="fr-nav-toggle" id="fr-nav-toggle" aria-label="Toggle navigation menu">☰</button>
+    <div class="fr-mobile-menu" id="fr-mobile-menu">
+      <a href="index.html">🏠 Home</a>
+      <a href="guides/index.html">📚 Guides & Knowledge Base</a>
+      <a href="about.html">ℹ️ About Us</a>
+      <a href="contact.html">✉️ Contact Us</a>
+      <a href="privacy.html">🔒 Privacy Policy</a>
+      <a href="terms.html" class="active">📜 Terms of Service</a>
+    </div>
   </header>
 
   <main class="fr-legal-container">
@@ -179,5 +142,6 @@
     </div>
     <div>&copy; 2026 FairReact. All rights reserved. Universal Dual Reaction Sync Player.</div>
   </footer>
+  <script src="js/nav.js"></script>
 </body>
 </html>
