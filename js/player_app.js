@@ -208,7 +208,13 @@
   }
 
   // 3. YouTube Players Setup
-  window.onYouTubeIframeAPIReady = function () {
+  function initPlayers() {
+    if (reactorPlayer || originalPlayer) return;
+    if (!window.YT || !window.YT.Player) {
+      setTimeout(initPlayers, 100);
+      return;
+    }
+
     reactorPlayer = new YT.Player('main-player', {
       videoId: reactionId,
       width: '100%',
@@ -253,12 +259,25 @@
 
     window.reactorPlayer = reactorPlayer;
     window.originalPlayer = originalPlayer;
-  };
+  }
 
-  const tag = document.createElement('script');
-  tag.src = 'https://www.youtube.com/iframe_api';
-  const firstScriptTag = document.getElementsByTagName('script')[0];
-  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+  if (window.YT && window.YT.Player) {
+    initPlayers();
+  } else {
+    window.onYouTubeIframeAPIReady = initPlayers;
+  }
+
+  // Load Iframe API if not already injected
+  if (!document.querySelector('script[src*="youtube.com/iframe_api"]')) {
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    const firstScriptTag = document.getElementsByTagName('script')[0];
+    if (firstScriptTag && firstScriptTag.parentNode) {
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    } else {
+      document.head.appendChild(tag);
+    }
+  }
 
   function onReactorPlayerReady() {
     isReactorReady = true;

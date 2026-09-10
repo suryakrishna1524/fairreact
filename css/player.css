@@ -18,16 +18,13 @@ html, body {
 
 /* Full Viewport Cinema Mode (watch.html only) */
 html.fr-cinema-html, body.fr-cinema-body {
-  width: 100vw;
-  height: 100vh;
-  height: 100dvh;
-  min-height: -webkit-fill-available;
+  width: 100%;
+  min-height: 100vh;
   background: #000000;
-  overflow: hidden !important;
+  overflow-x: hidden;
+  overflow-y: auto !important;
   position: relative;
   touch-action: manipulation;
-  user-select: none;
-  -webkit-user-select: none;
 }
 
 body {
