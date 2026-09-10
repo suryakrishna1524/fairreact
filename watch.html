@@ -24,10 +24,25 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body class="fr-cinema-body">
+  <!-- Top Global Navigation Header -->
+  <header class="fr-nav-header">
+    <a href="index.html" class="fr-brand-link">
+      <div class="fr-logo-chip">FR</div>
+      <span>FairReact</span>
+    </a>
+    <nav class="fr-nav-links">
+      <a href="index.html">Home</a>
+      <a href="guides/index.html">Guides</a>
+      <a href="about.html">About Us</a>
+      <a href="contact.html">Contact Us</a>
+      <a href="privacy.html">Privacy Policy</a>
+    </nav>
+  </header>
+
   <!-- Drag Blocker Overlay -->
   <div class="fr-drag-overlay" id="drag-overlay"></div>
 
-  <!-- Workspace Viewport (Full 100vw x 100vh Cinema Stage) -->
+  <!-- Workspace Viewport (Full 100vw Cinema Stage) -->
   <main class="fr-viewport" id="fr-viewport">
     <!-- Top Left FairReact Logo Watermark -->
     <a href="index.html" class="fr-cinema-brand" id="cinema-brand" title="FairReact Universal Player">
@@ -207,7 +222,7 @@
       </div>
 
       <!-- Safe AdSense Banner Placement with Surrounding Publisher Content -->
-      <div style="text-align:center; padding:14px; background:rgba(30,41,59,0.5); border-radius:12px; border:1px solid rgba(255,255,255,0.06);">
+      <div style="text-align:center; margin:10px 0; overflow:hidden;">
         <ins class="adsbygoogle"
              style="display:block"
              data-ad-client="ca-pub-3037836364890819"
