@@ -114,24 +114,68 @@
     .fr-features {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 14px;
+      gap: 16px;
     }
     .fr-feat-item {
-      background: rgba(30, 41, 59, 0.5);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 12px;
-      padding: 18px;
+      background: rgba(30, 41, 59, 0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      transition: all 0.22s ease;
     }
-    .fr-feat-item strong {
+    .fr-feat-item:hover {
+      background: rgba(30, 41, 59, 0.75);
+      border-color: rgba(129, 140, 248, 0.35);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+    }
+    .fr-feat-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 11px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       color: #818cf8;
-      display: block;
-      margin-bottom: 6px;
-      font-size: 14px;
+      flex-shrink: 0;
+      box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.15);
+      transition: all 0.22s ease;
     }
-    .fr-feat-item p {
+    .fr-feat-item:hover .fr-feat-icon {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(236, 72, 153, 0.3));
+      border-color: rgba(129, 140, 248, 0.5);
+      color: #ffffff;
+      box-shadow: 0 0 14px rgba(99, 102, 241, 0.4);
+      transform: scale(1.05);
+    }
+    .fr-feat-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .fr-feat-content strong {
+      color: #f8fafc;
+      display: block;
+      margin-bottom: 4px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+    .fr-feat-content p {
       font-size: 13px;
       color: #94a3b8;
       margin: 0;
+      line-height: 1.5;
     }
     .fr-info-section {
       background: #1e293b;
@@ -209,7 +253,9 @@
       <a href="privacy.html">Privacy Policy</a>
       <a href="terms.html">Terms of Service</a>
     </nav>
-    <button class="fr-nav-toggle" id="fr-nav-toggle" aria-label="Toggle navigation menu">☰</button>
+    <button class="fr-nav-toggle" id="fr-nav-toggle" aria-label="Toggle navigation menu">
+      <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
     <div class="fr-mobile-menu" id="fr-mobile-menu">
       <a href="index.html" class="active">
         <span class="fr-menu-icon">
@@ -272,8 +318,14 @@
         <input type="text" class="fr-input-landing" id="in-token" placeholder="e.g. v1.NDk6MA== or 00:49" value="v1.NDk6MCwyNzc6MTky">
       </div>
 
-      <button class="fr-btn-launch" id="btn-go">
-        🚀 Launch Dual Sync Player
+      <button class="fr-btn-launch" id="btn-go" style="display:flex; align-items:center; justify-content:center; gap:10px;">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"></path>
+          <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"></path>
+          <path d="M9 12H4s.55-3.03 2-4.5c1.62-1.63 5-2.5 5-2.5"></path>
+          <path d="M12 15v5s3.03-.55 4.5-2c1.63-1.62 2.5-5 2.5-5"></path>
+        </svg>
+        <span>Launch Dual Sync Player</span>
       </button>
     </div>
 
@@ -292,20 +344,40 @@
 
     <div class="fr-features">
       <div class="fr-feat-item">
-        <strong>📱 100% Zero-Install</strong>
-        <p>Runs natively in Safari, Chrome, and native YouTube app links on iOS and Android phones.</p>
+        <div class="fr-feat-icon">
+          <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+        </div>
+        <div class="fr-feat-content">
+          <strong>100% Zero-Install</strong>
+          <p>Runs natively in Safari, Chrome, and native YouTube app links on iOS and Android phones.</p>
+        </div>
       </div>
       <div class="fr-feat-item">
-        <strong>🪟 Draggable & Resizable PiP</strong>
-        <p>Touch-drag and resize the floating original video anywhere with 1-tap 16:9 widescreen snap.</p>
+        <div class="fr-feat-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><rect x="11" y="11" width="8" height="8" rx="1.5"></rect></svg>
+        </div>
+        <div class="fr-feat-content">
+          <strong>Draggable & Resizable PiP</strong>
+          <p>Touch-drag and resize the floating original video anywhere with 1-tap 16:9 widescreen snap.</p>
+        </div>
       </div>
       <div class="fr-feat-item">
-        <strong>⚡ 50/50 Cinema Split Mode</strong>
-        <p>Side-by-side cinema view optimized for mobile landscape orientation, monitors, and tablets.</p>
+        <div class="fr-feat-icon">
+          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="2"></rect><line x1="12" y1="3" x2="12" y2="21"></line></svg>
+        </div>
+        <div class="fr-feat-content">
+          <strong>50/50 Cinema Split Mode</strong>
+          <p>Side-by-side cinema view optimized for mobile landscape orientation, monitors, and tablets.</p>
+        </div>
       </div>
       <div class="fr-feat-item">
-        <strong>🔄 Frame-Locked Master Clock</strong>
-        <p>Auto-pauses during talking commentary and smoothly catches up on rewinds with zero audio stutter.</p>
+        <div class="fr-feat-icon">
+          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        </div>
+        <div class="fr-feat-content">
+          <strong>Frame-Locked Master Clock</strong>
+          <p>Auto-pauses during talking commentary and smoothly catches up on rewinds with zero audio stutter.</p>
+        </div>
       </div>
     </div>
 

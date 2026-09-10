@@ -436,4 +436,5 @@ if (typeof window !== 'undefined') {
 }
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = FairReactSyncEngine;
+  module.exports.FairReactSyncEngine = FairReactSyncEngine;
 }
