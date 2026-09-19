@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fair Dealing vs Fair Use: International Copyright Comparison - FairReact</title>
-  <meta name="description" content="Comparative global copyright analysis: US Fair Use doctrine vs UK, Canadian, Australian, and European Union Fair Dealing statutes for digital creators.">
+  <title>Reaction Audio Ducking & Mic Commentary Setup Guide - FairReact</title>
+  <meta name="description" content="Master reaction video audio mixing, sidechain compression ducking in OBS Studio, volume LUFS standards, and acoustic fingerprint mitigation.">
   
   <!-- Favicon / Tab Icon -->
   <link rel="icon" type="image/png" href="../favicon.png">
@@ -51,7 +51,7 @@
     }
     .fr-article-meta {
       font-size: 13px;
-      color: #818cf8;
+      color: #38bdf8;
       font-weight: 700;
       text-transform: uppercase;
       margin-bottom: 12px;
@@ -63,7 +63,7 @@
       color: #f8fafc;
       margin-bottom: 16px;
       line-height: 1.3;
-      background: linear-gradient(135deg, #818cf8, #ec4899);
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -100,6 +100,13 @@
     ul, ol {
       padding-left: 24px;
       margin-bottom: 20px;
+    }
+    .fr-callout {
+      background: rgba(15, 23, 42, 0.7);
+      border-left: 4px solid #38bdf8;
+      border-radius: 0 10px 10px 0;
+      padding: 18px 20px;
+      margin: 24px 0;
     }
     .fr-table {
       width: 100%;
@@ -153,23 +160,23 @@
     }
   </style>
 
-  <!-- JSON-LD Schema: Article & BreadcrumbList -->
+  <!-- JSON-LD Schema: TechArticle -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "Article",
-    "headline": "Fair Dealing vs Fair Use: International Copyright Comparison",
-    "description": "Comprehensive comparative legal study of US Fair Use doctrine vs UK, Canadian, Australian, and European Union Fair Dealing statutes.",
+    "@type": "TechArticle",
+    "headline": "Reaction Video Audio Ducking & Mic Commentary Setup Guide",
+    "description": "Master audio mixing, sidechain ducking in OBS Studio, broadcast LUFS standards, and acoustic fingerprint separation for reaction channels.",
     "author": {
       "@type": "Organization",
-      "name": "FairReact Global Copyright Research Group"
+      "name": "FairReact Media Engineering Team"
     },
     "publisher": {
       "@type": "Organization",
       "name": "FairReact Media",
       "url": "https://fairreact-webplayer.vercel.app/"
     },
-    "datePublished": "2026-09-10",
+    "datePublished": "2026-09-13",
     "dateModified": "2026-09-19"
   }
   </script>
@@ -208,59 +215,80 @@
     <div class="fr-breadcrumbs">
       <a href="../index.html">Home</a> &rsaquo;
       <a href="index.html">Guides</a> &rsaquo;
-      <span>Fair Dealing vs Fair Use</span>
+      <span>Reaction Audio Ducking & Mic Setup</span>
     </div>
 
     <article class="fr-article-card">
-      <div class="fr-article-meta">International Intellectual Property</div>
-      <h1>Fair Dealing vs Fair Use: International Copyright Comparison for Global Creators</h1>
+      <div class="fr-article-meta">Audio Engineering & Production</div>
+      <h1>Reaction Audio Ducking & Mic Commentary Setup: Broadcast-Grade Audio Guide</h1>
       
       <div class="fr-author-bar">
-        <span>By <strong>FairReact Global Copyright Research Group</strong></span>
+        <span>By <strong>FairReact Audio Engineering Group</strong></span>
         <span>&bull;</span>
-        <span>Comparative Jurisdictional Analysis</span>
+        <span>Standard OBS Studio & Adobe Premiere Tutorial</span>
         <span>&bull;</span>
         <span>Updated September 2026</span>
         <span>&bull;</span>
-        <span>13 Min Read</span>
+        <span>10 Min Read</span>
       </div>
 
-      <p>While creators in the United States operate under the open-ended four-factor <strong>Fair Use</strong> doctrine (17 U.S.C. &sect; 107), creators in the United Kingdom, Canada, Australia, and New Zealand are governed by statutory <strong>Fair Dealing</strong> frameworks that impose strictly enumerated legal categories.</p>
+      <p>Clear, balanced audio is the single most important factor distinguishing high-retention reaction channels from amateur uploads. If your microphone voice is muffled beneath loud music or movie sound effects, viewers leave within seconds—and copyright algorithms are more likely to flag uninterrupted background audio.</p>
 
-      <h2>1. Jurisdictional Comparison Matrix</h2>
+      <p>In this technical guide, we break down professional <strong>sidechain compression audio ducking</strong> in OBS Studio, broadcast volume target levels (-14 LUFS), and proper multi-track recording configurations.</p>
+
+      <h2>1. What is Audio Ducking and Why is It Critical?</h2>
+      <p>Audio ducking is an automated dynamics processing technique where the volume of a background audio track (such as the video being reacted to) is automatically reduced whenever a foreground signal (your microphone) exceeds a specific threshold.</p>
+
+      <p>Benefits for YouTube reaction channels include:</p>
+      <ul>
+        <li><strong>Effortless Intelligibility:</strong> Viewers hear every word of your commentary with clarity without having to strain over explosive background sound.</li>
+        <li><strong>Automatic Smoothing:</strong> Eliminates the need to manually draw volume keyframes for thousands of reaction pauses in post-production.</li>
+        <li><strong>Fair Use Evidence:</strong> Proves to human review teams that the creator's voice is the primary foreground element of the stream.</li>
+      </ul>
+
+      <h2>2. Step-by-Step OBS Studio Sidechain Ducking Setup</h2>
+      <p>Configuring automatic ducking in OBS Studio requires zero third-party plugins and takes under two minutes:</p>
+      <ol>
+        <li>In the OBS <strong>Audio Mixer</strong>, locate your <em>Desktop Audio</em> or <em>Browser Source Audio</em> track.</li>
+        <li>Click the gear/three dots icon and select <strong>Filters</strong>.</li>
+        <li>Click the <strong>+</strong> button in the bottom left and add a <strong>Compressor</strong> filter (name it <em>Auto-Duck</em>).</li>
+        <li>Under <strong>Sidechain/Ducking Source</strong>, select your <em>Mic/Aux</em> input.</li>
+        <li>Apply the recommended broadcast settings from the table below:</li>
+      </ol>
+
       <table class="fr-table">
         <thead>
           <tr>
-            <th>Jurisdiction</th>
-            <th>Legal Doctrine</th>
-            <th>Permitted Reaction Purposes</th>
-            <th>Attribution Mandate</th>
+            <th>Compressor Parameter</th>
+            <th>Recommended Setting</th>
+            <th>Functional Purpose</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><strong>United States</strong></td>
-            <td>Fair Use (17 U.S.C. &sect; 107)</td>
-            <td>Open-ended: Criticism, comment, parody, scholarship, transformative analysis.</td>
-            <td>Favored in Factor 1, but not strictly statutory.</td>
+            <td><strong>Ratio</strong></td>
+            <td>4.0 : 1 to 6.0 : 1</td>
+            <td>Provides a smooth, natural volume reduction without jarring cutoffs.</td>
           </tr>
           <tr>
-            <td><strong>United Kingdom</strong></td>
-            <td>Fair Dealing (CDPA 1988)</td>
-            <td>Closed list: Criticism, review, quotation, parody, caricature, pastiche.</td>
-            <td><strong>Strictly Mandatory</strong> for criticism and review.</td>
+            <td><strong>Threshold</strong></td>
+            <td>-32 dB to -28 dB</td>
+            <td>Triggers ducking the moment you begin speaking at normal conversational volume.</td>
           </tr>
           <tr>
-            <td><strong>Canada</strong></td>
-            <td>Fair Dealing (Copyright Act)</td>
-            <td>Research, private study, criticism, review, news reporting, parody, satire.</td>
-            <td>Source and author mention required for criticism/review.</td>
+            <td><strong>Attack Time</strong></td>
+            <td>20 ms to 35 ms</td>
+            <td>Instantly attenuates the background track on the first syllable.</td>
           </tr>
           <tr>
-            <td><strong>Australia</strong></td>
-            <td>Fair Dealing (Copyright Act 1968)</td>
-            <td>Strict enumerated categories: Criticism/review, parody/satire, reporting.</td>
-            <td>Sufficient acknowledgement of author and title strictly required.</td>
+            <td><strong>Release Time</strong></td>
+            <td>450 ms to 600 ms</td>
+            <td>Gradually restores background audio when you stop speaking, preventing awkward audio pumping.</td>
+          </tr>
+          <tr>
+            <td><strong>Output Gain</strong></td>
+            <td>0.0 dB</td>
+            <td>Leaves raw signal unamplified to preserve natural mastering balance.</td>
           </tr>
         </tbody>
       </table>
@@ -278,11 +306,18 @@
         </script>
       </div>
 
-      <h2>2. Why International Creators Face Higher Risk Under Fair Dealing</h2>
-      <p>Under US fair use, any use that is deemed sufficiently "transformative" can qualify for defense. In contrast, under UK or Australian Fair Dealing, if your video does not cleanly fit inside the statutory definitions of <em>criticism, review, quotation, or parody</em>, the defense fails automatically regardless of how creative the video is.</p>
+      <h2>3. Multi-Track Audio Routing in OBS Studio</h2>
+      <p>Never record microphone audio and desktop audio mixed together onto a single audio track. If a video receives a claim or requires a volume tweak later, single-track audio prevents you from isolating your voice.</p>
 
-      <h2>3. Global Compliance with FairReact</h2>
-      <p>Because FairReact utilizes YouTube's official authorized public embed player, your video streams comply with local copyright laws across every international territory simultaneously.</p>
+      <div class="fr-callout">
+        <p><strong>Pro Tip:</strong> Open <em>Settings &rarr; Output &rarr; Recording</em> and enable Tracks 1, 2, and 3. Assign Track 1 to Full Mix, Track 2 to Clean Microphone Only, and Track 3 to Desktop Audio Only in the <em>Advanced Audio Properties</em> window.</p>
+      </div>
+
+      <h2>4. Mastering Levels for YouTube (-14 LUFS Standards)</h2>
+      <p>YouTube normalizes all uploaded videos to approximately <strong>-14 LUFS Integrated</strong> (Loudness Units Full Scale) with a <strong>-1.0 dB True Peak ceiling</strong>. If your reaction audio peaks too loudly (+2 dB), YouTube will forcefully depress your overall video volume, making your commentary quiet on mobile phones.</p>
+
+      <h2>5. The Zero-Bleed Alternative: FairReact Web Engine</h2>
+      <p>Even with optimal ducking, re-encoding third-party audio inside your video file exposes your channel to automated Content ID acoustic waveform matching. By utilizing FairReact Dual Sync, your reaction video only contains your clean voice recording, completely separating the original audio and eliminating acoustic strike risks forever.</p>
     </article>
   </main>
 

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Creator Knowledge Base & Guides - FairReact</title>
-  <meta name="description" content="Comprehensive guides on YouTube fair use, avoiding copyright claims, dual video synchronization technology, and reaction creator monetization.">
+  <title>Creator Knowledge Base & Master Guides - FairReact</title>
+  <meta name="description" content="15+ in-depth master guides on YouTube fair use legal defense, audio ducking, Content ID claims, DMCA counter-notifications, and reaction channel monetization.">
   
   <!-- Favicon / Tab Icon -->
   <link rel="icon" type="image/png" href="../favicon.png">
@@ -26,13 +26,13 @@
       padding: 0;
     }
     .fr-hub-container {
-      max-width: 900px;
+      max-width: 960px;
       margin: 40px auto 80px auto;
       padding: 0 20px;
     }
     .fr-hub-hero {
       text-align: center;
-      margin-bottom: 40px;
+      margin-bottom: 36px;
     }
     .fr-hub-hero h1 {
       font-size: 34px;
@@ -45,19 +45,72 @@
     .fr-hub-hero p {
       font-size: 16px;
       color: #94a3b8;
-      max-width: 680px;
+      max-width: 720px;
       margin: 0 auto;
+    }
+    .fr-banner-tool {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(236, 72, 153, 0.15));
+      border: 1px solid rgba(129, 140, 248, 0.3);
+      border-radius: 16px;
+      padding: 24px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+    .fr-banner-tool h3 {
+      margin: 0 0 6px 0;
+      color: #f8fafc;
+      font-size: 18px;
+    }
+    .fr-banner-tool p {
+      margin: 0;
+      color: #cbd5e1;
+      font-size: 14px;
+    }
+    .fr-btn-tool-cta {
+      background: linear-gradient(135deg, #6366f1, #ec4899);
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 12px 22px;
+      border-radius: 8px;
+      transition: transform 0.15s ease;
+      white-space: nowrap;
+    }
+    .fr-btn-tool-cta:hover {
+      transform: translateY(-2px);
+    }
+    .fr-cat-header {
+      font-size: 20px;
+      font-weight: 800;
+      color: #f1f5f9;
+      margin: 36px 0 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 8px;
+    }
+    .fr-cat-header span {
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
     }
     .fr-guides-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 18px;
+      margin-bottom: 24px;
     }
     .fr-guide-card {
       background: #1e293b;
       border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 24px;
+      border-radius: 14px;
+      padding: 22px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
@@ -67,41 +120,43 @@
       color: inherit;
     }
     .fr-guide-card:hover {
-      transform: translateY(-4px);
+      transform: translateY(-3px);
       border-color: #818cf8;
     }
     .fr-guide-tag {
       display: inline-block;
       font-size: 11px;
       font-weight: 700;
-      color: #818cf8;
       text-transform: uppercase;
-      background: rgba(129, 140, 248, 0.12);
-      padding: 4px 10px;
-      border-radius: 20px;
-      margin-bottom: 12px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      margin-bottom: 10px;
       width: fit-content;
     }
+    .fr-tag-legal { background: rgba(129, 140, 248, 0.15); color: #818cf8; }
+    .fr-tag-audio { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+    .fr-tag-biz { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+    .fr-tag-tech { background: rgba(236, 72, 153, 0.15); color: #ec4899; }
     .fr-guide-title {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
       color: #f8fafc;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       line-height: 1.4;
     }
     .fr-guide-desc {
-      font-size: 14px;
+      font-size: 13px;
       color: #94a3b8;
-      line-height: 1.6;
-      margin-bottom: 16px;
+      line-height: 1.5;
+      margin-bottom: 14px;
     }
     .fr-guide-read {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
-      color: #ec4899;
+      color: #818cf8;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
     }
     .fr-footer {
       border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -131,6 +186,22 @@
       }
     }
   </style>
+
+  <!-- JSON-LD Schema: CollectionPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "FairReact Creator Knowledge Base & Master Guides",
+    "url": "https://fairreact-webplayer.vercel.app/guides/index.html",
+    "description": "Comprehensive library of 15+ master guides covering digital copyright, YouTube fair use, audio ducking, and dual-sync video engineering.",
+    "publisher": {
+      "@type": "Organization",
+      "name": "FairReact Media & Technology Group",
+      "url": "https://fairreact-webplayer.vercel.app/"
+    }
+  }
+  </script>
 </head>
 <body>
   <header class="fr-nav-header">
@@ -141,6 +212,8 @@
     <nav class="fr-nav-links">
       <a href="../index.html">Home</a>
       <a href="index.html" class="active">Guides</a>
+      <a href="../tools/fair-use-evaluator.html">Tools</a>
+      <a href="../editorial-policy.html">Editorial Policy</a>
       <a href="../about.html">About Us</a>
       <a href="../contact.html">Contact Us</a>
       <a href="../privacy.html">Privacy Policy</a>
@@ -150,130 +223,191 @@
       <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
     </button>
     <div class="fr-mobile-menu" id="fr-mobile-menu">
-      <a href="../index.html">
-        <span class="fr-menu-icon">
-          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-        </span>
-        <span>Home</span>
-      </a>
-      <a href="index.html" class="active">
-        <span class="fr-menu-icon">
-          <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-        </span>
-        <span>Guides & Knowledge Base</span>
-      </a>
-      <a href="../about.html">
-        <span class="fr-menu-icon">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-        </span>
-        <span>About Us</span>
-      </a>
-      <a href="../contact.html">
-        <span class="fr-menu-icon">
-          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-        </span>
-        <span>Contact Us</span>
-      </a>
-      <a href="../privacy.html">
-        <span class="fr-menu-icon">
-          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-        </span>
-        <span>Privacy Policy</span>
-      </a>
-      <a href="../terms.html">
-        <span class="fr-menu-icon">
-          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-        </span>
-        <span>Terms of Service</span>
-      </a>
+      <a href="../index.html"><span class="fr-menu-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></span><span>Home</span></a>
+      <a href="index.html" class="active"><span class="fr-menu-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></span><span>Guides & Knowledge Base</span></a>
+      <a href="../tools/fair-use-evaluator.html"><span class="fr-menu-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></span><span>Fair Use Calculator</span></a>
+      <a href="../about.html"><span class="fr-menu-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span><span>About Us</span></a>
+      <a href="../contact.html"><span class="fr-menu-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></span><span>Contact Us</span></a>
+      <a href="../privacy.html"><span class="fr-menu-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></span><span>Privacy Policy</span></a>
+      <a href="../terms.html"><span class="fr-menu-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></span><span>Terms of Service</span></a>
     </div>
   </header>
 
   <main class="fr-hub-container">
     <div class="fr-hub-hero">
-      <h1>Creator Knowledge Base & Guides</h1>
-      <p>Master YouTube copyright laws, eliminate Content ID claims, understand dual-video synchronization, and optimize creator monetization ethically.</p>
+      <h1>Creator Knowledge Base & Master Guides</h1>
+      <p>Authoritative legal analyses, broadcast audio workflows, monetization frameworks, and video engineering protocols for YouTube reaction channels.</p>
     </div>
 
+    <!-- Interactive Tool Featured Callout -->
+    <div class="fr-banner-tool">
+      <div>
+        <h3>Interactive Fair Use Risk Calculator</h3>
+        <p>Evaluate your reaction video workflow against statutory fair use factors in under 60 seconds.</p>
+      </div>
+      <a href="../tools/fair-use-evaluator.html" class="fr-btn-tool-cta">Launch Calculator &rarr;</a>
+    </div>
+
+    <!-- Category 1: Legal Defense & Copyright Law -->
+    <div class="fr-cat-header">
+      <span>Category 1</span>
+      <div>Legal Defense, Fair Use & DMCA Disputes</div>
+    </div>
     <div class="fr-guides-grid">
-      <!-- Article 1 -->
       <a href="fair-use-reaction-videos-guide.html" class="fr-guide-card">
         <div>
-          <span class="fr-guide-tag">Legal & Copyright</span>
-          <h2 class="fr-guide-title">YouTube Fair Use & Copyright Law: The Definitive Guide for Reaction Channels</h2>
-          <p class="fr-guide-desc">An exhaustive analysis of the four fair use factors under US & International copyright law, transformative commentary, and how courts view video reactions.</p>
+          <span class="fr-guide-tag fr-tag-legal">Statutory Law</span>
+          <div class="fr-guide-title">YouTube Fair Use & Copyright Law Master Guide</div>
+          <div class="fr-guide-desc">The 4 statutory factors of 17 U.S.C. &sect; 107, transformative commentary doctrines, and landmark federal court precedents.</div>
         </div>
-        <div class="fr-guide-read">Read Full Article &rarr;</div>
+        <div class="fr-guide-read">Read Full Masterclass &rarr;</div>
       </a>
 
-      <!-- Article 2 -->
-      <a href="how-to-avoid-copyright-claims-youtube.html" class="fr-guide-card">
+      <a href="dmca-counter-notification-youtube-guide.html" class="fr-guide-card">
         <div>
-          <span class="fr-guide-tag">Channel Safety</span>
-          <h2 class="fr-guide-title">How to Avoid Content ID Claims and Copyright Strikes on YouTube</h2>
-          <p class="fr-guide-desc">Step-by-step best practices to prevent automated audio/video fingerprints from triggering automated strikes and demonetizing your channel.</p>
+          <span class="fr-guide-tag fr-tag-legal">Dispute Defense</span>
+          <div class="fr-guide-title">DMCA Counter-Notification Masterclass: Disputing Strikes</div>
+          <div class="fr-guide-desc">How to file a formal counter-notification under 17 U.S.C. &sect; 512(g), the 14-day legal timeline, and Section 512(f) liabilities.</div>
         </div>
-        <div class="fr-guide-read">Read Full Article &rarr;</div>
+        <div class="fr-guide-read">Read Full Masterclass &rarr;</div>
       </a>
 
-      <!-- Article 3 -->
-      <a href="dual-video-synchronization-explained.html" class="fr-guide-card">
-        <div>
-          <span class="fr-guide-tag">Technology</span>
-          <h2 class="fr-guide-title">The Technology Behind Real-Time Master Clock Dual Video Synchronization</h2>
-          <p class="fr-guide-desc">Deep technical dive into sub-second frame locking, timeline compaction algorithms, and client-side iframe synchronization architectures.</p>
-        </div>
-        <div class="fr-guide-read">Read Full Article &rarr;</div>
-      </a>
-
-      <!-- Article 4 -->
-      <a href="monetization-guide-for-reaction-channels.html" class="fr-guide-card">
-        <div>
-          <span class="fr-guide-tag">Monetization</span>
-          <h2 class="fr-guide-title">Reaction Channel Monetization: Ethical Revenue Sharing & Viewer Retention</h2>
-          <p class="fr-guide-desc">How creators can maximize RPM, preserve 100% of their ad revenues, and simultaneously direct official views and royalties to original music/film artists.</p>
-        </div>
-        <div class="fr-guide-read">Read Full Article &rarr;</div>
-      </a>
-
-      <!-- Article 5 -->
-      <a href="youtube-video-licensing-and-permissions.html" class="fr-guide-card">
-        <div>
-          <span class="fr-guide-tag">Licensing</span>
-          <h2 class="fr-guide-title">How to Request Video Permissions and Music Licensing on YouTube</h2>
-          <p class="fr-guide-desc">Step-by-step guide on reaching out to music labels, film studios, and independent artists to secure video synchronization clearances and commercial rights.</p>
-        </div>
-        <div class="fr-guide-read">Read Full Article &rarr;</div>
-      </a>
-
-      <!-- Article 6 -->
-      <a href="fair-dealing-vs-fair-use-international.html" class="fr-guide-card">
-        <div>
-          <span class="fr-guide-tag">International Law</span>
-          <h2 class="fr-guide-title">Fair Use vs. Fair Dealing: International Copyright Laws for Creators</h2>
-          <p class="fr-guide-desc">A comprehensive legal comparison between United States Fair Use doctrine and Fair Dealing laws in the United Kingdom, India, Canada, and Australia.</p>
-        </div>
-        <div class="fr-guide-read">Read Full Article &rarr;</div>
-      </a>
-
-      <!-- Article 7 -->
-      <a href="reaction-video-editing-workflow.html" class="fr-guide-card">
-        <div>
-          <span class="fr-guide-tag">Production</span>
-          <h2 class="fr-guide-title">The Modern Commentary & Reaction Editing Workflow: Production Guide</h2>
-          <p class="fr-guide-desc">A complete technical guide on camera setup, multi-track audio routing, lighting, and timeline synchronization for YouTube commentary creators.</p>
-        </div>
-        <div class="fr-guide-read">Read Full Article &rarr;</div>
-      </a>
-
-      <!-- Article 8 -->
       <a href="top-copyright-dispute-mistakes.html" class="fr-guide-card">
         <div>
-          <span class="fr-guide-tag">Dispute Resolution</span>
-          <h2 class="fr-guide-title">5 Costly Mistakes Creators Make When Disputing Copyright Claims</h2>
-          <p class="fr-guide-desc">Learn how to properly handle YouTube Content ID disputes, counter-notifications, and legal appeals without risking strikes or channel termination.</p>
+          <span class="fr-guide-tag fr-tag-legal">Strike Prevention</span>
+          <div class="fr-guide-title">Top 10 Copyright Dispute Mistakes YouTube Creators Make</div>
+          <div class="fr-guide-desc">Avoid false dispute pitfalls that escalate Content ID claims into catastrophic channel strikes.</div>
         </div>
-        <div class="fr-guide-read">Read Full Article &rarr;</div>
+        <div class="fr-guide-read">Read Full Masterclass &rarr;</div>
+      </a>
+
+      <a href="fair-dealing-vs-fair-use-international.html" class="fr-guide-card">
+        <div>
+          <span class="fr-guide-tag fr-tag-legal">Global IP</span>
+          <div class="fr-guide-title">Fair Dealing vs. Fair Use: International Copyright Comparison</div>
+          <div class="fr-guide-desc">How copyright exceptions differ across the US, UK, Canada, Australia, and the European Union for global creators.</div>
+        </div>
+        <div class="fr-guide-read">Read Full Masterclass &rarr;</div>
+      </a>
+
+      <a href="creative-commons-vs-commercial-copyright-youtube.html" class="fr-guide-card">
+        <div>
+          <span class="fr-guide-tag fr-tag-legal">Licensing</span>
+          <div class="fr-guide-title">Creative Commons vs. Commercial Copyright on YouTube</div>
+          <div class="fr-guide-desc">CC-BY attribution requirements, commercial monetization rules, and avoiding unauthorized re-upload traps.</div>
+        </div>
+        <div class="fr-guide-read">Read Full Masterclass &rarr;</div>
+      </a>
+
+      <a href="music-video-reactions-fair-use-rules.html" class="fr-guide-card">
+        <div>
+          <span class="fr-guide-tag fr-tag-legal">Music Law</span>
+          <div class="fr-guide-title">Music Video Reactions & The 30-Second Myth Debunked</div>
+          <div class="fr-guide-desc">Master recording vs musical composition copyrights, mechanical licenses, and why music reactions face automatic blocks.</div>
+        </div>
+        <div class="fr-guide-read">Read Full Masterclass &rarr;</div>
+      </a>
+    </div>
+
+    <!-- Category 2: Audio Engineering & Production -->
+    <div class="fr-cat-header">
+      <span>Category 2</span>
+      <div>Audio Engineering & Production Workflows</div>
+    </div>
+    <div class="fr-guides-grid">
+      <a href="reaction-audio-ducking-commentary-mixing.html" class="fr-guide-card">
+        <div>
+          <span class="fr-guide-tag fr-tag-audio">Audio Mixing</span>
+          <div class="fr-guide-title">Reaction Audio Ducking & Mic Commentary Setup</div>
+          <div class="fr-guide-desc">Sidechain compression in OBS Studio, -14 LUFS YouTube loudness standards, and multi-track recording setups.</div>
+        </div>
+        <div class="fr-guide-read">Read Full Masterclass &rarr;</div>
+      </a>
+
+      <a href="reaction-channel-hardware-obs-studio-setup.html" class="fr-guide-card">
+        <div>
+          <span class="fr-guide-tag fr-tag-audio">Studio Gear</span>
+          <div class="fr-guide-title">Reaction Channel Studio Setup 2026: Camera & OBS Guide</div>
+          <div class="fr-guide-desc">4K mirrorless camera settings, key lighting, dual monitor ergonomics, and low-latency capture card routing.</div>
+        </div>
+        <div class="fr-guide-read">Read Full Masterclass &rarr;</div>
+      </a>
+
+      <a href="reaction-video-editing-workflow.html" class="fr-guide-card">
+        <div>
+          <span class="fr-guide-tag fr-tag-audio">Post-Production</span>
+          <div class="fr-guide-title">High-Retention Reaction Video Editing Workflow</div>
+          <div class="fr-guide-desc">Pacing, visual zooms, dynamic picture-in-picture placement, and thumbnail framing techniques.</div>
+        </div>
+        <div class="fr-guide-read">Read Full Masterclass &rarr;</div>
+      </a>
+    </div>
+
+    <!-- Category 3: Channel Monetization & Strategy -->
+    <div class="fr-cat-header">
+      <span>Category 3</span>
+      <div>Monetization, Safety & Multi-Platform Strategy</div>
+    </div>
+    <div class="fr-guides-grid">
+      <a href="how-to-avoid-copyright-claims-youtube.html" class="fr-guide-card">
+        <div>
+          <span class="fr-guide-tag fr-tag-biz">Channel Safety</span>
+          <div class="fr-guide-title">Avoiding Content ID Claims & Strikes on YouTube</div>
+          <div class="fr-guide-desc">Actionable best practices to prevent automated audio/video fingerprints from capturing your ad revenue.</div>
+        </div>
+        <div class="fr-guide-read">Read Full Masterclass &rarr;</div>
+      </a>
+
+      <a href="monetization-guide-for-reaction-channels.html" class="fr-guide-card">
+        <div>
+          <span class="fr-guide-tag fr-tag-biz">Revenue</span>
+          <div class="fr-guide-title">Reaction Channel Monetization & Revenue Protection</div>
+          <div class="fr-guide-desc">Retain 100% of YouTube AdSense revenue while establishing ethical dual-stream discovery for original creators.</div>
+        </div>
+        <div class="fr-guide-read">Read Full Masterclass &rarr;</div>
+      </a>
+
+      <a href="twitch-vs-youtube-fair-use-streaming-vod.html" class="fr-guide-card">
+        <div>
+          <span class="fr-guide-tag fr-tag-biz">Multi-Platform</span>
+          <div class="fr-guide-title">Twitch vs. YouTube Fair Use: Live Streams vs VODs</div>
+          <div class="fr-guide-desc">Real-time copyright mutes, live watch party liabilities, and turning live reactions into compliant YouTube uploads.</div>
+        </div>
+        <div class="fr-guide-read">Read Full Masterclass &rarr;</div>
+      </a>
+
+      <a href="youtube-video-licensing-and-permissions.html" class="fr-guide-card">
+        <div>
+          <span class="fr-guide-tag fr-tag-biz">Licensing</span>
+          <div class="fr-guide-title">YouTube Video Licensing & Written Permission Guide</div>
+          <div class="fr-guide-desc">Professional permission request templates, synchronization agreements, and revenue-sharing contracts.</div>
+        </div>
+        <div class="fr-guide-read">Read Full Masterclass &rarr;</div>
+      </a>
+    </div>
+
+    <!-- Category 4: Technology & Open Standards -->
+    <div class="fr-cat-header">
+      <span>Category 4</span>
+      <div>Video Synchronization Technology & Protocols</div>
+    </div>
+    <div class="fr-guides-grid">
+      <a href="dual-video-synchronization-explained.html" class="fr-guide-card">
+        <div>
+          <span class="fr-guide-tag fr-tag-tech">Engineering</span>
+          <div class="fr-guide-title">Master-Clock Video Synchronization Architecture</div>
+          <div class="fr-guide-desc">Sub-second frame-locking algorithms and client-side dual-iframe synchronization engineering.</div>
+        </div>
+        <div class="fr-guide-read">Read Full Masterclass &rarr;</div>
+      </a>
+
+      <a href="fairreact-timeline-calibration-token-technical-spec.html" class="fr-guide-card">
+        <div>
+          <span class="fr-guide-tag fr-tag-tech">Open Protocol</span>
+          <div class="fr-guide-title">FairReact Timeline Token & Encryption Technical Spec</div>
+          <div class="fr-guide-desc">Base64 token grammar, piecewise linear timeline segmentation, and sub-frame clock drift mitigation.</div>
+        </div>
+        <div class="fr-guide-read">Read Full Masterclass &rarr;</div>
       </a>
     </div>
   </main>
@@ -281,14 +415,17 @@
   <footer class="fr-footer">
     <div class="fr-footer-links">
       <a href="../index.html">Home</a>
-      <a href="index.html">Guides</a>
+      <a href="index.html" style="color:#818cf8;">Guides</a>
+      <a href="../tools/fair-use-evaluator.html">Tools</a>
+      <a href="../editorial-policy.html">Editorial Policy</a>
       <a href="../about.html">About Us</a>
       <a href="../contact.html">Contact Us</a>
       <a href="../privacy.html">Privacy Policy</a>
       <a href="../terms.html">Terms of Service</a>
     </div>
-    <div>&copy; 2026 FairReact. All rights reserved. Universal Dual Reaction Sync Player & Knowledge Base.</div>
+    <div>&copy; 2026 FairReact. All rights reserved. Universal Dual Reaction Sync Player.</div>
   </footer>
+
   <script src="../js/nav.js"></script>
 </body>
 </html>

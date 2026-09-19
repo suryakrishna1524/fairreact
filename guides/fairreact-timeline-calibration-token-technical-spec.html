@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fair Dealing vs Fair Use: International Copyright Comparison - FairReact</title>
-  <meta name="description" content="Comparative global copyright analysis: US Fair Use doctrine vs UK, Canadian, Australian, and European Union Fair Dealing statutes for digital creators.">
+  <title>FairReact Calibration Token & Dual-Lock Architecture: Technical Spec - FairReact</title>
+  <meta name="description" content="Technical specification of the FairReact synchronization protocol: Base64 timeline tokens, sub-second iframe state machines, and clock drift correction.">
   
   <!-- Favicon / Tab Icon -->
   <link rel="icon" type="image/png" href="../favicon.png">
@@ -51,7 +51,7 @@
     }
     .fr-article-meta {
       font-size: 13px;
-      color: #818cf8;
+      color: #6366f1;
       font-weight: 700;
       text-transform: uppercase;
       margin-bottom: 12px;
@@ -63,7 +63,7 @@
       color: #f8fafc;
       margin-bottom: 16px;
       line-height: 1.3;
-      background: linear-gradient(135deg, #818cf8, #ec4899);
+      background: linear-gradient(135deg, #6366f1, #a855f7);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -101,25 +101,24 @@
       padding-left: 24px;
       margin-bottom: 20px;
     }
-    .fr-table {
-      width: 100%;
-      border-collapse: collapse;
+    .fr-callout {
+      background: rgba(15, 23, 42, 0.7);
+      border-left: 4px solid #6366f1;
+      border-radius: 0 10px 10px 0;
+      padding: 18px 20px;
       margin: 24px 0;
-      font-size: 14px;
     }
-    .fr-table th, .fr-table td {
-      padding: 12px 14px;
+    .fr-code-block {
+      background: #0f172a;
       border: 1px solid rgba(255, 255, 255, 0.1);
-      text-align: left;
-    }
-    .fr-table th {
-      background: rgba(15, 23, 42, 0.8);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: Consolas, Monaco, 'Courier New', monospace;
+      font-size: 13px;
       color: #f8fafc;
-      font-weight: 700;
-    }
-    .fr-table td {
-      background: rgba(30, 41, 59, 0.4);
-      color: #cbd5e1;
+      overflow-x: auto;
+      margin: 20px 0;
+      line-height: 1.5;
     }
     .fr-in-article-ad {
       margin: 32px 0;
@@ -153,23 +152,23 @@
     }
   </style>
 
-  <!-- JSON-LD Schema: Article & BreadcrumbList -->
+  <!-- JSON-LD Schema: TechArticle -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "Article",
-    "headline": "Fair Dealing vs Fair Use: International Copyright Comparison",
-    "description": "Comprehensive comparative legal study of US Fair Use doctrine vs UK, Canadian, Australian, and European Union Fair Dealing statutes.",
+    "@type": "TechArticle",
+    "headline": "FairReact Timeline Calibration & Token Encryption: Technical Specification",
+    "description": "Technical specification of the FairReact synchronization protocol: Base64 timeline tokens, sub-second iframe state machines, and clock drift correction.",
     "author": {
       "@type": "Organization",
-      "name": "FairReact Global Copyright Research Group"
+      "name": "FairReact Protocol Architecture Group"
     },
     "publisher": {
       "@type": "Organization",
       "name": "FairReact Media",
       "url": "https://fairreact-webplayer.vercel.app/"
     },
-    "datePublished": "2026-09-10",
+    "datePublished": "2026-09-16",
     "dateModified": "2026-09-19"
   }
   </script>
@@ -208,62 +207,41 @@
     <div class="fr-breadcrumbs">
       <a href="../index.html">Home</a> &rsaquo;
       <a href="index.html">Guides</a> &rsaquo;
-      <span>Fair Dealing vs Fair Use</span>
+      <span>FairReact Technical Specification</span>
     </div>
 
     <article class="fr-article-card">
-      <div class="fr-article-meta">International Intellectual Property</div>
-      <h1>Fair Dealing vs Fair Use: International Copyright Comparison for Global Creators</h1>
+      <div class="fr-article-meta">Protocol Architecture & Software Engineering</div>
+      <h1>FairReact Timeline Calibration & Token Encryption: Technical Specification</h1>
       
       <div class="fr-author-bar">
-        <span>By <strong>FairReact Global Copyright Research Group</strong></span>
+        <span>By <strong>FairReact Protocol Architecture Group</strong></span>
         <span>&bull;</span>
-        <span>Comparative Jurisdictional Analysis</span>
+        <span>Open Video Sync Standard v2.9</span>
         <span>&bull;</span>
         <span>Updated September 2026</span>
         <span>&bull;</span>
-        <span>13 Min Read</span>
+        <span>11 Min Read</span>
       </div>
 
-      <p>While creators in the United States operate under the open-ended four-factor <strong>Fair Use</strong> doctrine (17 U.S.C. &sect; 107), creators in the United Kingdom, Canada, Australia, and New Zealand are governed by statutory <strong>Fair Dealing</strong> frameworks that impose strictly enumerated legal categories.</p>
+      <p>The FairReact protocol enables client-side, zero-install frame synchronization between two independent YouTube HTML5 player instances. This specification documents the architecture of the <strong>FairReact Token Serialization Format (v1.x)</strong>, the piecewise linear timeline segmentation engine, and client-side clock drift mitigation algorithms.</p>
 
-      <h2>1. Jurisdictional Comparison Matrix</h2>
-      <table class="fr-table">
-        <thead>
-          <tr>
-            <th>Jurisdiction</th>
-            <th>Legal Doctrine</th>
-            <th>Permitted Reaction Purposes</th>
-            <th>Attribution Mandate</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><strong>United States</strong></td>
-            <td>Fair Use (17 U.S.C. &sect; 107)</td>
-            <td>Open-ended: Criticism, comment, parody, scholarship, transformative analysis.</td>
-            <td>Favored in Factor 1, but not strictly statutory.</td>
-          </tr>
-          <tr>
-            <td><strong>United Kingdom</strong></td>
-            <td>Fair Dealing (CDPA 1988)</td>
-            <td>Closed list: Criticism, review, quotation, parody, caricature, pastiche.</td>
-            <td><strong>Strictly Mandatory</strong> for criticism and review.</td>
-          </tr>
-          <tr>
-            <td><strong>Canada</strong></td>
-            <td>Fair Dealing (Copyright Act)</td>
-            <td>Research, private study, criticism, review, news reporting, parody, satire.</td>
-            <td>Source and author mention required for criticism/review.</td>
-          </tr>
-          <tr>
-            <td><strong>Australia</strong></td>
-            <td>Fair Dealing (Copyright Act 1968)</td>
-            <td>Strict enumerated categories: Criticism/review, parody/satire, reporting.</td>
-            <td>Sufficient acknowledgement of author and title strictly required.</td>
-          </tr>
-        </tbody>
-      </table>
+      <h2>1. Token Structure & Base64 Grammar</h2>
+      <p>FairReact timeline calibration tokens are compact, URL-safe alphanumeric strings encoded as follows:</p>
+
+      <div class="fr-code-block">
+Token = "v1." + Base64UrlEncode( PointList )
+PointList = Point *( "," Point )
+Point = ReactorTimeSeconds ":" OriginalTimeSeconds
+      </div>
+
+      <p>For example, a reaction video where the reactor introduces their video for 49 seconds before playing the original video from 00:00 (and later pauses at reactor timestamp 04:37 / original timestamp 03:12) is encoded as:</p>
+
+      <div class="fr-code-block">
+Raw String: "49:0,277:192"
+Base64 Encoded: "NDk6MCwyNzc6MTky"
+Full Token: "v1.NDk6MCwyNzc6MTky"
+      </div>
 
       <!-- In-Article Compliant Ad Placement -->
       <div class="fr-in-article-ad">
@@ -278,11 +256,24 @@
         </script>
       </div>
 
-      <h2>2. Why International Creators Face Higher Risk Under Fair Dealing</h2>
-      <p>Under US fair use, any use that is deemed sufficiently "transformative" can qualify for defense. In contrast, under UK or Australian Fair Dealing, if your video does not cleanly fit inside the statutory definitions of <em>criticism, review, quotation, or parody</em>, the defense fails automatically regardless of how creative the video is.</p>
+      <h2>2. Piecewise Linear Timeline Segmentation</h2>
+      <p>The FairReact sync engine parses the token into an ordered array of timeline segments. Each segment defines an operational state:</p>
+      <ul>
+        <li><code>PRE_START</code>: Reactor is introducing the video. The floating PiP window remains pre-warmed and muted; target time is clamped to original start.</li>
+        <li><code>PLAYING</code>: Target time strictly follows \( T_{\text{orig}} = \text{seg.origStart} + (T_{\text{react}} - \text{seg.reactStart}) + \Delta_{\text{offset}} \).</li>
+        <li><code>PAUSED_ZONE</code>: The reactor has paused the original video to deliver critical commentary. The child player auto-pauses at the exact frame.</li>
+        <li><code>ENDED</code>: The original video has concluded. The PiP window gracefully hides.</li>
+      </ul>
 
-      <h2>3. Global Compliance with FairReact</h2>
-      <p>Because FairReact utilizes YouTube's official authorized public embed player, your video streams comply with local copyright laws across every international territory simultaneously.</p>
+      <h2>3. Dual-Lock Clock Drift Correction Algorithm</h2>
+      <p>Because web browsers schedule JavaScript execution using non-deterministic event loops, playback timing between two iframe decoders can drift by up to &plusmn;350ms over 10 minutes. FairReact deploys a continuous 100ms watchdog loop:</p>
+
+      <div class="fr-callout">
+        <p><strong>Drift Correction Rule:</strong> When \( | T_{\text{actual}} - T_{\text{target}} | > 0.35\text{s} \), the engine initiates an instantaneous sub-frame seek (throttled to a minimum interval of 400ms to avoid audio decoder popping). If drift is \( < 0.2\text{s} \), native playback rate micro-adjustments (\( 0.98\times / 1.02\times \)) dynamically realign the clocks with zero perceptible pitch distortion.</p>
+      </div>
+
+      <h2>4. Security & Decentralized Client Execution</h2>
+      <p>FairReact executes entirely within the user's browser sandbox using standard YouTube IFrame APIs. No user video data, timestamps, or personal viewing information is stored on external database servers, providing complete GDPR and CCPA privacy compliance by design.</p>
     </article>
   </main>
 

@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FairReact - Universal Dual Sync Reaction Player & Creator Studio</title>
-  <meta name="description" content="Watch YouTube reaction videos side-by-side with original official videos in synchronized Picture-in-Picture. Zero copyright strikes, 100% fair views.">
+  <meta name="description" content="Watch YouTube reaction videos side-by-side with original official videos in synchronized Picture-in-Picture. Zero copyright strikes, 100% fair views and monetization.">
   
   <!-- Favicon / Tab Icon -->
   <link rel="icon" type="image/png" href="favicon.png">
@@ -22,41 +22,41 @@
       background: #0b0f19;
       color: #e2e8f0;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      line-height: 1.6;
+      line-height: 1.7;
       margin: 0;
       padding: 0;
     }
     .fr-landing-container {
-      max-width: 780px;
-      margin: 40px auto 60px auto;
-      padding: 0 16px;
+      max-width: 960px;
+      margin: 40px auto 80px auto;
+      padding: 0 20px;
       display: flex;
       flex-direction: column;
-      gap: 32px;
+      gap: 36px;
     }
     .fr-hero {
       text-align: center;
     }
     .fr-hero h1 {
-      font-size: 34px;
+      font-size: 36px;
       font-weight: 900;
       background: linear-gradient(135deg, #818cf8, #ec4899);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 12px;
-      line-height: 1.2;
+      margin-bottom: 14px;
+      line-height: 1.25;
     }
     .fr-hero p {
-      font-size: 16px;
+      font-size: 17px;
       color: #94a3b8;
-      max-width: 620px;
+      max-width: 720px;
       margin: 0 auto;
     }
     .fr-card-landing {
       background: #1e293b;
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 16px;
-      padding: 28px;
+      padding: 30px;
       display: flex;
       flex-direction: column;
       gap: 16px;
@@ -101,15 +101,6 @@
     .fr-btn-launch:hover {
       transform: translateY(-2px);
       box-shadow: 0 6px 22px rgba(99, 102, 241, 0.6);
-    }
-    .fr-landing-ad {
-      text-align: center;
-      min-height: 60px;
-      background: rgba(15, 23, 42, 0.4);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
     .fr-features {
       display: grid;
@@ -181,12 +172,33 @@
       background: #1e293b;
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 16px;
-      padding: 30px;
+      padding: 32px 30px;
     }
     .fr-info-section h2 {
       font-size: 22px;
       color: #f8fafc;
+      margin-top: 0;
       margin-bottom: 14px;
+    }
+    .fr-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 14px;
+    }
+    .fr-table th, .fr-table td {
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      text-align: left;
+    }
+    .fr-table th {
+      background: rgba(15, 23, 42, 0.8);
+      color: #f8fafc;
+      font-weight: 700;
+    }
+    .fr-table td {
+      background: rgba(30, 41, 59, 0.4);
+      color: #cbd5e1;
     }
     .fr-faq-item {
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -205,6 +217,7 @@
       color: #94a3b8;
       font-size: 14px;
       margin: 0;
+      line-height: 1.6;
     }
     .fr-footer {
       border-top: 1px solid rgba(255, 255, 255, 0.08);
@@ -229,7 +242,7 @@
     .fr-footer-links a:hover {
       color: #818cf8;
     }
-    @media (max-width: 650px) {
+    @media (max-width: 680px) {
       .fr-features {
         grid-template-columns: 1fr;
       }
@@ -238,6 +251,60 @@
       }
     }
   </style>
+
+  <!-- JSON-LD Schema: WebSite, WebApplication & FAQPage -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://fairreact-webplayer.vercel.app/#website",
+        "url": "https://fairreact-webplayer.vercel.app/",
+        "name": "FairReact",
+        "description": "Universal Dual Sync Reaction Player & Creator Knowledge Base"
+      },
+      {
+        "@type": "WebApplication",
+        "@id": "https://fairreact-webplayer.vercel.app/#app",
+        "name": "FairReact Dual Sync Player",
+        "url": "https://fairreact-webplayer.vercel.app/",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "All",
+        "browserRequirements": "Requires JavaScript. Requires HTML5."
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How does FairReact eliminate YouTube copyright claims and strikes?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "FairReact decouples the reactor facecam video from the copyrighted media. The official original video is streamed directly via YouTube's official authorized player in synchronized Picture-in-Picture, resulting in zero third-party video data in the reactor's upload."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Do original creators receive official views, watch time, and ad revenue?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes! Every synchronized playback registers as a legitimate view and generates watch time on the original creator's official YouTube channel."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does FairReact require software or browser extension installation?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "No. FairReact is a 100% zero-install web application that runs natively in any standard mobile and desktop browser including Safari, Chrome, and Firefox."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
   <header class="fr-nav-header">
@@ -248,6 +315,8 @@
     <nav class="fr-nav-links">
       <a href="index.html" class="active">Home</a>
       <a href="guides/index.html">Guides</a>
+      <a href="tools/fair-use-evaluator.html">Tools</a>
+      <a href="editorial-policy.html">Editorial Policy</a>
       <a href="about.html">About Us</a>
       <a href="contact.html">Contact Us</a>
       <a href="privacy.html">Privacy Policy</a>
@@ -258,39 +327,31 @@
     </button>
     <div class="fr-mobile-menu" id="fr-mobile-menu">
       <a href="index.html" class="active">
-        <span class="fr-menu-icon">
-          <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-        </span>
+        <span class="fr-menu-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg></span>
         <span>Home</span>
       </a>
       <a href="guides/index.html">
-        <span class="fr-menu-icon">
-          <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
-        </span>
+        <span class="fr-menu-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg></span>
         <span>Guides & Knowledge Base</span>
       </a>
+      <a href="tools/fair-use-evaluator.html">
+        <span class="fr-menu-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></span>
+        <span>Fair Use Calculator</span>
+      </a>
       <a href="about.html">
-        <span class="fr-menu-icon">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-        </span>
+        <span class="fr-menu-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg></span>
         <span>About Us</span>
       </a>
       <a href="contact.html">
-        <span class="fr-menu-icon">
-          <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-        </span>
+        <span class="fr-menu-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></span>
         <span>Contact Us</span>
       </a>
       <a href="privacy.html">
-        <span class="fr-menu-icon">
-          <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
-        </span>
+        <span class="fr-menu-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg></span>
         <span>Privacy Policy</span>
       </a>
       <a href="terms.html">
-        <span class="fr-menu-icon">
-          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-        </span>
+        <span class="fr-menu-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg></span>
         <span>Terms of Service</span>
       </a>
     </div>
@@ -298,23 +359,24 @@
 
   <main class="fr-landing-container">
     <div class="fr-hero">
-      <h1>Universal Dual Sync Reaction Player</h1>
-      <p>Watch YouTube reaction videos side-by-side with official original creators in perfectly synchronized, zero-drift Picture-in-Picture.</p>
+      <h1>Universal Dual Sync Reaction Player & Creator Studio</h1>
+      <p>Watch YouTube reaction videos side-by-side with official original creators in frame-locked, zero-drift Picture-in-Picture. Eliminate copyright strikes forever while delivering legitimate watch time to original artists.</p>
     </div>
 
+    <!-- Dual Sync Launcher Card -->
     <div class="fr-card-landing">
       <div class="fr-form-group">
-        <label class="fr-form-label">Reaction Video URL or YouTube ID</label>
-        <input type="text" class="fr-input-landing" id="in-reaction" placeholder="e.g. uPJq0RPLr9A" value="uPJq0RPLr9A">
+        <label class="fr-form-label">Reactor Video URL or YouTube ID (Facecam Stream)</label>
+        <input type="text" class="fr-input-landing" id="in-reaction" placeholder="e.g. uPJq0RPLr9A or full YouTube link" value="uPJq0RPLr9A">
       </div>
 
       <div class="fr-form-group">
-        <label class="fr-form-label">Original Video URL or YouTube ID</label>
-        <input type="text" class="fr-input-landing" id="in-original" placeholder="e.g. JqFzhcWo3EU" value="JqFzhcWo3EU">
+        <label class="fr-form-label">Official Original Video URL or YouTube ID</label>
+        <input type="text" class="fr-input-landing" id="in-original" placeholder="e.g. JqFzhcWo3EU or full YouTube link" value="JqFzhcWo3EU">
       </div>
 
       <div class="fr-form-group">
-        <label class="fr-form-label">FairReact Calibration Token or Offset (MM:SS)</label>
+        <label class="fr-form-label">FairReact Calibration Token or Initial Offset (MM:SS)</label>
         <input type="text" class="fr-input-landing" id="in-token" placeholder="e.g. v1.NDk6MA== or 00:49" value="v1.NDk6MCwyNzc6MTky">
       </div>
 
@@ -329,19 +391,7 @@
       </button>
     </div>
 
-    <!-- AdSense Landing Banner Slot -->
-    <div class="fr-landing-ad">
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-pub-3037836364890819"
-           data-ad-slot="auto"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-      <script>
-           (adsbygoogle = window.adsbygoogle || []).push({});
-      </script>
-    </div>
-
+    <!-- Core Features Grid -->
     <div class="fr-features">
       <div class="fr-feat-item">
         <div class="fr-feat-icon">
@@ -349,7 +399,7 @@
         </div>
         <div class="fr-feat-content">
           <strong>100% Zero-Install</strong>
-          <p>Runs natively in Safari, Chrome, and native YouTube app links on iOS and Android phones.</p>
+          <p>Runs natively in Safari, Chrome, and Android web views without browser plugins.</p>
         </div>
       </div>
       <div class="fr-feat-item">
@@ -358,7 +408,7 @@
         </div>
         <div class="fr-feat-content">
           <strong>Draggable & Resizable PiP</strong>
-          <p>Touch-drag and resize the floating original video anywhere with 1-tap 16:9 widescreen snap.</p>
+          <p>Touch-drag and resize the floating original video anywhere with 1-tap 16:9 snap.</p>
         </div>
       </div>
       <div class="fr-feat-item">
@@ -367,7 +417,7 @@
         </div>
         <div class="fr-feat-content">
           <strong>50/50 Cinema Split Mode</strong>
-          <p>Side-by-side cinema view optimized for mobile landscape orientation, monitors, and tablets.</p>
+          <p>Side-by-side cinema view optimized for mobile landscape orientation and desktop monitors.</p>
         </div>
       </div>
       <div class="fr-feat-item">
@@ -376,67 +426,160 @@
         </div>
         <div class="fr-feat-content">
           <strong>Frame-Locked Master Clock</strong>
-          <p>Auto-pauses during talking commentary and smoothly catches up on rewinds with zero audio stutter.</p>
+          <p>Sub-second synchronization that pauses during reactor commentary and auto-resumes.</p>
         </div>
       </div>
     </div>
 
-    <!-- Featured Creator Guides Section for AdSense Content Value -->
+    <!-- The Dual-Stream Paradigm Breakdown -->
+    <section class="fr-info-section">
+      <h2>The Dual-Stream Revolution: Traditional Re-uploading vs. FairReact</h2>
+      <p style="color:#94a3b8; font-size:15px;">For over a decade, YouTube reaction creators have struggled with copyright claims, channel strikes, and revenue disputes. The traditional workflow of downloading copyrighted media and re-uploading it directly infringes on original artists' rights. FairReact changes everything with ethical dual-stream synchronization.</p>
+      
+      <table class="fr-table">
+        <thead>
+          <tr>
+            <th>Feature & Creator Metrics</th>
+            <th>Traditional Reaction Video Edit</th>
+            <th>FairReact Dual Sync Architecture</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Copyright Claim & Strike Risk</strong></td>
+            <td><strong>Extremely High</strong> (Content ID acoustic and video match).</td>
+            <td><strong>0% Risk</strong> (Zero copyrighted video data hosted).</td>
+          </tr>
+          <tr>
+            <td><strong>Original Creator View Attribution</strong></td>
+            <td><strong>0 Views</strong> (Original creator gets zero watch time).</td>
+            <td><strong>100% Official Views & Watch Time</strong> registered live.</td>
+          </tr>
+          <tr>
+            <td><strong>AdSense Monetization Retention</strong></td>
+            <td>Frequently claimed or diverted 100% to claimants.</td>
+            <td><strong>100% Retained</strong> by reaction creator on facecam VOD.</td>
+          </tr>
+          <tr>
+            <td><strong>Audio Fidelity & Music Quality</strong></td>
+            <td>Degraded (Pitch-shifted or muffled to evade bots).</td>
+            <td><strong>Pristine 1080p/4K HD</strong> direct from official YouTube CDNs.</td>
+          </tr>
+          <tr>
+            <td><strong>Mobile & Smart Device Support</strong></td>
+            <td>Baked into fixed aspect ratio.</td>
+            <td>Dynamic draggable, pinch-to-zoom floating Picture-in-Picture.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- Interactive Tools Callout -->
+    <section class="fr-info-section" style="background:linear-gradient(135deg, rgba(99,102,241,0.1), rgba(236,72,153,0.1)); border-color:rgba(129,140,248,0.25);">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+        <div>
+          <span style="font-size:11px; font-weight:700; color:#818cf8; text-transform:uppercase;">Creator Utility</span>
+          <h3 style="font-size:20px; color:#f8fafc; margin:4px 0 6px 0;">Interactive YouTube Fair Use Risk Calculator</h3>
+          <p style="color:#cbd5e1; font-size:14px; margin:0; max-width:620px;">Evaluate your reaction stream parameters (criticism depth, pause frequency, audio ducking) against 17 U.S.C. &sect; 107 and get an instant legal compliance score.</p>
+        </div>
+        <a href="tools/fair-use-evaluator.html" style="background:linear-gradient(135deg, #6366f1, #ec4899); color:white; text-decoration:none; font-weight:700; font-size:14px; padding:12px 22px; border-radius:8px; white-space:nowrap;">Launch Tool &rarr;</a>
+      </div>
+    </section>
+
+    <!-- Featured Creator Guides Section -->
     <section class="fr-info-section">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-        <h2 style="margin-bottom:0;">Creator Knowledge Base & Guides</h2>
-        <a href="guides/index.html" style="color:#818cf8; text-decoration:none; font-size:14px; font-weight:700;">View All Guides &rarr;</a>
+        <h2 style="margin-bottom:0;">Featured Master Guides & Legal Knowledge Base</h2>
+        <a href="guides/index.html" style="color:#818cf8; text-decoration:none; font-size:14px; font-weight:700;">View All 15+ Guides &rarr;</a>
       </div>
-      <p style="color:#94a3b8; font-size:14px; margin-bottom:20px;">Explore our comprehensive legal and technical guides to protect your reaction channel, maximize revenue, and master fair use.</p>
+      <p style="color:#94a3b8; font-size:14px; margin-bottom:20px;">Explore authoritative legal analyses, audio engineering workflows, and creator monetization strategies written by digital copyright researchers.</p>
       
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
-        <a href="guides/fair-use-reaction-videos-guide.html" style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:16px; text-decoration:none; color:inherit; display:block;">
-          <span style="font-size:11px; font-weight:700; color:#818cf8; text-transform:uppercase;">Legal Guide</span>
-          <h3 style="font-size:15px; color:#f8fafc; margin:6px 0 8px 0;">YouTube Fair Use & Copyright Law</h3>
-          <p style="font-size:13px; color:#94a3b8; margin:0;">Analysis of transformative commentary, the four statutory factors, and legal defense.</p>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+        <a href="guides/fair-use-reaction-videos-guide.html" style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:18px; text-decoration:none; color:inherit; display:block;">
+          <span style="font-size:11px; font-weight:700; color:#818cf8; text-transform:uppercase;">Statutory Law</span>
+          <h3 style="font-size:15px; color:#f8fafc; margin:6px 0 8px 0;">YouTube Fair Use & Copyright Law Masterclass</h3>
+          <p style="font-size:13px; color:#94a3b8; margin:0;">In-depth breakdown of the 4 statutory factors, transformative critique, and the landmark <em>H3H3 Precedent</em>.</p>
         </a>
-        <a href="guides/how-to-avoid-copyright-claims-youtube.html" style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:16px; text-decoration:none; color:inherit; display:block;">
-          <span style="font-size:11px; font-weight:700; color:#ec4899; text-transform:uppercase;">Channel Safety</span>
-          <h3 style="font-size:15px; color:#f8fafc; margin:6px 0 8px 0;">Avoiding Content ID Claims & Strikes</h3>
-          <p style="font-size:13px; color:#94a3b8; margin:0;">Best practices to prevent automated audio/video fingerprints from claiming your revenue.</p>
+        <a href="guides/dmca-counter-notification-youtube-guide.html" style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:18px; text-decoration:none; color:inherit; display:block;">
+          <span style="font-size:11px; font-weight:700; color:#ef4444; text-transform:uppercase;">Legal Defense</span>
+          <h3 style="font-size:15px; color:#f8fafc; margin:6px 0 8px 0;">DMCA Counter-Notifications: Disputing False Strikes</h3>
+          <p style="font-size:13px; color:#94a3b8; margin:0;">How to submit formal 17 U.S.C. &sect; 512(g) counter-notifications and navigate the 14-day court timeline.</p>
         </a>
-        <a href="guides/dual-video-synchronization-explained.html" style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:16px; text-decoration:none; color:inherit; display:block;">
-          <span style="font-size:11px; font-weight:700; color:#38bdf8; text-transform:uppercase;">Engineering</span>
-          <h3 style="font-size:15px; color:#f8fafc; margin:6px 0 8px 0;">Master-Clock Synchronization Tech</h3>
-          <p style="font-size:13px; color:#94a3b8; margin:0;">Sub-second frame locking algorithms and client-side iframe synchronization architecture.</p>
+        <a href="guides/reaction-audio-ducking-commentary-mixing.html" style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:18px; text-decoration:none; color:inherit; display:block;">
+          <span style="font-size:11px; font-weight:700; color:#38bdf8; text-transform:uppercase;">Audio Engineering</span>
+          <h3 style="font-size:15px; color:#f8fafc; margin:6px 0 8px 0;">Reaction Audio Ducking & Mic Commentary Setup</h3>
+          <p style="font-size:13px; color:#94a3b8; margin:0;">Sidechain compression setup in OBS Studio, -14 LUFS volume targets, and multi-track routing.</p>
         </a>
-        <a href="guides/monetization-guide-for-reaction-channels.html" style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:16px; text-decoration:none; color:inherit; display:block;">
+        <a href="guides/monetization-guide-for-reaction-channels.html" style="background:rgba(15,23,42,0.6); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:18px; text-decoration:none; color:inherit; display:block;">
           <span style="font-size:11px; font-weight:700; color:#34d399; text-transform:uppercase;">Monetization</span>
-          <h3 style="font-size:15px; color:#f8fafc; margin:6px 0 8px 0;">Reaction Channel Monetization Guide</h3>
-          <p style="font-size:13px; color:#94a3b8; margin:0;">How creators can retain 100% of their YouTube ad revenue while supporting original artists.</p>
+          <h3 style="font-size:15px; color:#f8fafc; margin:6px 0 8px 0;">Reaction Channel Monetization & Revenue Blueprint</h3>
+          <p style="font-size:13px; color:#94a3b8; margin:0;">How to retain 100% of your channel revenue while building sustainable dual-stream creator partnerships.</p>
         </a>
       </div>
     </section>
 
-    <!-- Informational SEO & FAQ Section -->
+    <!-- Expanded 10-Question FAQ Section -->
     <section class="fr-info-section">
       <h2>Frequently Asked Questions (FAQ)</h2>
       
       <div class="fr-faq-item">
-        <div class="fr-faq-q">How does FairReact protect YouTubers from copyright strikes?</div>
-        <p class="fr-faq-a">Instead of downloading and re-uploading copyrighted media inside your video edit, you upload your facecam reaction and provide a FairReact link. Viewers stream the official original video live in synchronized PiP, completely eliminating copyright claims.</p>
+        <div class="fr-faq-q">1. How does FairReact protect YouTubers from copyright strikes and Content ID claims?</div>
+        <p class="fr-faq-a">Instead of downloading and editing copyrighted video files directly into your video timeline (which triggers automated acoustic and video fingerprint matching), you upload only your clean facecam commentary video to YouTube. FairReact streams the official original video live in synchronized Picture-in-Picture directly from the original artist's channel. Because your upload contains 0% third-party video data, it is completely immune to automated claims.</p>
       </div>
 
       <div class="fr-faq-item">
-        <div class="fr-faq-q">Do both creators get official YouTube views and watch time?</div>
-        <p class="fr-faq-a">Yes! Both the reactor video and the original creator's official video are rendered via official YouTube players, registering legitimate views, watch time, and ad impressions for both channels.</p>
+        <div class="fr-faq-q">2. Do original creators get official YouTube views, watch time, and ad impressions?</div>
+        <p class="fr-faq-a">Yes! Both the reactor video and the original creator's official video are rendered via official YouTube embedded player instances. Every viewer watching via FairReact registers as an official view and delivers legitimate watch time and ad revenue to the original artist's YouTube channel.</p>
       </div>
 
       <div class="fr-faq-item">
-        <div class="fr-faq-q">Does it work on mobile phones without installing anything?</div>
-        <p class="fr-faq-a">Absolutely. FairReact's web player works directly in any standard mobile browser (Safari, Chrome, Firefox) with touch controls and picture-in-picture resizing.</p>
+        <div class="fr-faq-q">3. Does FairReact require installing browser extensions or mobile apps?</div>
+        <p class="fr-faq-a">No. FairReact is a 100% zero-install web application. It runs seamlessly inside any modern desktop or mobile browser (iOS Safari, Android Chrome, Firefox, Edge) with full touch-drag PiP controls and fullscreen support.</p>
+      </div>
+
+      <div class="fr-faq-item">
+        <div class="fr-faq-q">4. What is a FairReact Calibration Token?</div>
+        <p class="fr-faq-a">A calibration token (e.g. <code>v1.NDk6MCwyNzc6MTky</code>) is a compact, URL-safe Base64 string that maps the reaction video's timeline to the original video's timeline. It tells the sync engine exactly when the reactor introduces the video, pauses for commentary, or rewinds.</p>
+      </div>
+
+      <div class="fr-faq-item">
+        <div class="fr-faq-q">5. How does the player handle commentary pauses during the reaction?</div>
+        <p class="fr-faq-a">FairReact features an intelligent Master-Clock State Engine. When the reactor pauses the original video to deliver critical analysis, the child player automatically pauses at the exact frame. When playback resumes, the child player smoothly unpauses with sub-second accuracy.</p>
+      </div>
+
+      <div class="fr-faq-item">
+        <div class="fr-faq-q">6. Can I use FairReact for music video reactions?</div>
+        <p class="fr-faq-a">Yes. Music video reactions are among the biggest beneficiaries of FairReact. Because record labels strictly enforce automated Content ID blocks on sound recordings, streaming the official Vevo music video in synchronized PiP allows music reactors to provide commentary while delivering official streams to the musician.</p>
+      </div>
+
+      <div class="fr-faq-item">
+        <div class="fr-faq-q">7. How do viewers access the Dual Sync Player?</div>
+        <p class="fr-faq-a">Creators include their generated FairReact link in their YouTube video description and pinned comment. Viewers click the link and instantly experience the dual-synchronized stream on their phone, tablet, or desktop.</p>
+      </div>
+
+      <div class="fr-faq-item">
+        <div class="fr-faq-q">8. Is FairReact compliant with YouTube's Terms of Service and API Policies?</div>
+        <p class="fr-faq-a">Yes. FairReact utilizes standard, authorized YouTube IFrame Player APIs. It does not download, rip, or bypass YouTube's content delivery networks, preserving all creator branding and advertising metrics.</p>
+      </div>
+
+      <div class="fr-faq-item">
+        <div class="fr-faq-q">9. How do I calibrate a token for my own reaction video?</div>
+        <p class="fr-faq-a">Simply input the timestamp where the original video begins playing in your reaction stream (e.g. 00:49). FairReact encodes this into a calibration token that you can paste into your video description.</p>
+      </div>
+
+      <div class="fr-faq-item">
+        <div class="fr-faq-q">10. Where can I learn more about fair use and digital copyright law?</div>
+        <p class="fr-faq-a">Explore our comprehensive <a href="guides/index.html" style="color:#818cf8; text-decoration:underline;">Creator Knowledge Base</a> containing 15+ peer-reviewed master guides on fair use doctrine, audio mixing, Content ID dispute procedures, and monetization strategy.</p>
       </div>
     </section>
   </main>
 
   <footer class="fr-footer">
     <div class="fr-footer-links">
-      <a href="index.html">Home</a>
+      <a href="index.html" style="color:#818cf8;">Home</a>
+      <a href="guides/index.html">Guides</a>
+      <a href="tools/fair-use-evaluator.html">Tools</a>
+      <a href="editorial-policy.html">Editorial Policy</a>
       <a href="about.html">About Us</a>
       <a href="contact.html">Contact Us</a>
       <a href="privacy.html">Privacy Policy</a>
